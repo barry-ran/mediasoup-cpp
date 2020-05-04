@@ -7,6 +7,7 @@ add_subdirectory(deps/libuv)
 add_subdirectory(deps/catch2)
 add_subdirectory(deps/libsrtp)
 add_subdirectory(deps/openssl)
+add_subdirectory(deps/netstring)
 
 set(WERROR OFF CACHE INTERNAL "")
 add_subdirectory(deps/usrsctp)
