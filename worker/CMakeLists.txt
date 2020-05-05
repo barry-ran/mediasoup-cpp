@@ -149,7 +149,7 @@ set(mediasoup_worker_headers
     "include/RTC/RTCP/FeedbackPsRemb.hpp"
     "include/RTC/RTCP/XR.hpp"
     "include/RTC/RTCP/XrDelaySinceLastRr.hpp"
-    "include/RTC/RTCP/XrReceiverReferenceTime.hpp    "
+    "include/RTC/RTCP/XrReceiverReferenceTime.hpp"
 )
 
 set(mediasoup_worker_sources
@@ -321,8 +321,8 @@ endif()
 IF(CMAKE_SYSTEM_NAME MATCHES "Linux")
     target_compile_definitions(${PROJECT_NAME} 
         PRIVATE 
-        "_POSIX_C_SOURCE=200112"
-        "_GNU_SOURCE"
+        _POSIX_C_SOURCE=200112
+        _GNU_SOURCE
     )
 ELSEIF(CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
     set(CMAKE_SHARED_LINKER_FLAGS "-Wl,--export-dynamic")
@@ -330,18 +330,16 @@ ELSEIF(CMAKE_SYSTEM_NAME MATCHES "Windows")
     target_link_libraries(${PROJECT_NAME}
         wingetopt
     )
+    target_include_directories(${PROJECT_NAME}
+    PRIVATE
+    deps/wingetopt/src
+)
 ELSE()
 
 ENDIF(CMAKE_SYSTEM_NAME MATCHES "Linux")
 
 IF(NOT WIN32)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}"
-        -std=c++11
-        -Wall
-        -Wextra
-        -Wno-unused-parameter
-        -Wno-implicit-fallthrough
-    )
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra -Wno-unused-parameter -Wno-implicit-fallthrough")
 ENDIF()
 
 IF(APPLE)
@@ -359,7 +357,6 @@ target_include_directories(${PROJECT_NAME}
     PRIVATE
     include
     deps/json/single_include/nlohmann
-    deps/wingetopt/src
 )
 
 target_link_libraries(${PROJECT_NAME}

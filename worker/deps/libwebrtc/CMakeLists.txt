@@ -6,6 +6,10 @@ project(${PROJECT_NAME})
 include (TestBigEndian)
 TEST_BIG_ENDIAN(IS_BIG_ENDIAN)
 
+IF(NOT WIN32)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+ENDIF()
+
 set(BUILD_TESTING OFF CACHE INTERNAL "")
 add_subdirectory(deps/abseil-cpp)
 unset(BUILD_TESTING)
@@ -124,10 +128,6 @@ set(libwebrtc_sources
 
 # file(GLOB_RECURSE libwebrtc_headers libwebrtc/*.h??)
 # file(GLOB_RECURSE libwebrtc_sources libwebrtc/*.cc??)
-
-IF(NOT WIN32)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c++11")
-ENDIF()
 
 add_library(${PROJECT_NAME}
   STATIC
