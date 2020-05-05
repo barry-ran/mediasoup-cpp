@@ -1,4 +1,6 @@
 /*-
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
  * Copyright (c) 2001-2008, by Cisco Systems, Inc. All rights reserved.
  * Copyright (c) 2008-2012, by Randall Stewart. All rights reserved.
  * Copyright (c) 2008-2012, by Michael Tuexen. All rights reserved.
@@ -32,7 +34,7 @@
 
 #ifdef __FreeBSD__
 #include <sys/cdefs.h>
-__FBSDID("$FreeBSD: head/sys/netinet/sctp_constants.h 297312 2016-03-27 10:04:25Z tuexen $");
+__FBSDID("$FreeBSD: head/sys/netinet/sctp_constants.h 359405 2020-03-28 20:25:45Z tuexen $");
 #endif
 
 #ifndef _NETINET_SCTP_CONSTANTS_H_
@@ -101,10 +103,6 @@ extern void getwintimeofday(struct timeval *tv);
  * make the initial array of VRF's to.
  */
 #define SCTP_DEFAULT_VRF_SIZE 4
-
-/* constants for rto calc */
-#define sctp_align_safe_nocopy 0
-#define sctp_align_unsafe_makecopy 1
 
 /* JRS - Values defined for the HTCP algorithm */
 #define ALPHA_BASE	(1<<7)  /* 1.0 with shift << 7 */
@@ -280,7 +278,7 @@ extern void getwintimeofday(struct timeval *tv);
 #define SCTP_DEFAULT_MULTIPLE_ASCONFS	0
 
 /*
- * Theshold for rwnd updates, we have to read (sb_hiwat >>
+ * Threshold for rwnd updates, we have to read (sb_hiwat >>
  * SCTP_RWND_HIWAT_SHIFT) before we will look to see if we need to send a
  * window update sack. When we look, we compare the last rwnd we sent vs the
  * current rwnd. It too must be greater than this value. Using 3 divdes the
@@ -350,6 +348,7 @@ extern void getwintimeofday(struct timeval *tv);
 #define SCTP_RTT_FROM_NON_DATA 0
 #define SCTP_RTT_FROM_DATA     1
 
+#define PR_SCTP_UNORDERED_FLAG 0x0001
 
 /* IP hdr (20/40) + 12+2+2 (enet) + sctp common 12 */
 #define SCTP_FIRST_MBUF_RESV 68
@@ -391,15 +390,15 @@ extern void getwintimeofday(struct timeval *tv);
 /* align to 32-bit sizes */
 #define SCTP_SIZE32(x)	((((x) + 3) >> 2) << 2)
 
-#define IS_SCTP_CONTROL(a) ((a)->chunk_type != SCTP_DATA)
-#define IS_SCTP_DATA(a) ((a)->chunk_type == SCTP_DATA)
+#define IS_SCTP_CONTROL(a) (((a)->chunk_type != SCTP_DATA) && ((a)->chunk_type != SCTP_IDATA))
+#define IS_SCTP_DATA(a) (((a)->chunk_type == SCTP_DATA) || ((a)->chunk_type == SCTP_IDATA))
 
 
 /* SCTP parameter types */
 /*************0x0000 series*************/
 #define SCTP_HEARTBEAT_INFO		0x0001
 #if defined(__Userspace__)
-#define SCTP_CONN_ADDRESS               0x0004
+#define SCTP_CONN_ADDRESS		0x0004
 #endif
 #define SCTP_IPV4_ADDRESS		0x0005
 #define SCTP_IPV6_ADDRESS		0x0006
@@ -409,43 +408,34 @@ extern void getwintimeofday(struct timeval *tv);
 #define SCTP_HOSTNAME_ADDRESS		0x000b
 #define SCTP_SUPPORTED_ADDRTYPE		0x000c
 
-/* draft-ietf-stewart-tsvwg-strreset-xxx */
+/* RFC 6525 */
 #define SCTP_STR_RESET_OUT_REQUEST	0x000d
 #define SCTP_STR_RESET_IN_REQUEST	0x000e
 #define SCTP_STR_RESET_TSN_REQUEST	0x000f
 #define SCTP_STR_RESET_RESPONSE		0x0010
 #define SCTP_STR_RESET_ADD_OUT_STREAMS	0x0011
-#define SCTP_STR_RESET_ADD_IN_STREAMS   0x0012
+#define SCTP_STR_RESET_ADD_IN_STREAMS	0x0012
 
 #define SCTP_MAX_RESET_PARAMS 2
-#define SCTP_STREAM_RESET_TSN_DELTA    0x1000
+#define SCTP_STREAM_RESET_TSN_DELTA	0x1000
 
 /*************0x4000 series*************/
 
 /*************0x8000 series*************/
 #define SCTP_ECN_CAPABLE		0x8000
 
-/* draft-ietf-tsvwg-auth-xxx */
+/* RFC 4895 */
 #define SCTP_RANDOM			0x8002
 #define SCTP_CHUNK_LIST			0x8003
 #define SCTP_HMAC_LIST			0x8004
-/*
- * draft-ietf-tsvwg-addip-sctp-xx param=0x8008  len=0xNNNN Byte | Byte | Byte
- * | Byte Byte | Byte ...
- *
- * Where each byte is a chunk type extension supported. For example, to support
- * all chunks one would have (in hex):
- *
- * 80 01 00 09 C0 C1 80 81 82 00 00 00
- *
- * Has the parameter. C0 = PR-SCTP    (RFC3758) C1, 80 = ASCONF (addip draft) 81
- * = Packet Drop 82 = Stream Reset 83 = Authentication
- */
-#define SCTP_SUPPORTED_CHUNK_EXT    0x8008
+/* RFC 4820 */
+#define SCTP_PAD			0x8005
+/* RFC 5061 */
+#define SCTP_SUPPORTED_CHUNK_EXT	0x8008
 
 /*************0xC000 series*************/
 #define SCTP_PRSCTP_SUPPORTED		0xc000
-/* draft-ietf-tsvwg-addip-sctp */
+/* RFC 5061 */
 #define SCTP_ADD_IP_ADDRESS		0xc001
 #define SCTP_DEL_IP_ADDRESS		0xc002
 #define SCTP_ERROR_CAUSE_IND		0xc003
@@ -453,8 +443,8 @@ extern void getwintimeofday(struct timeval *tv);
 #define SCTP_SUCCESS_REPORT		0xc005
 #define SCTP_ULP_ADAPTATION		0xc006
 /* behave-nat-draft */
-#define SCTP_HAS_NAT_SUPPORT            0xc007
-#define SCTP_NAT_VTAGS                  0xc008
+#define SCTP_HAS_NAT_SUPPORT		0xc007
+#define SCTP_NAT_VTAGS			0xc008
 
 /* bits for TOS field */
 #define SCTP_ECT0_BIT		0x02
@@ -488,10 +478,14 @@ extern void getwintimeofday(struct timeval *tv);
 #define SCTP_STATE_IN_ACCEPT_QUEUE      0x1000
 #define SCTP_STATE_MASK			0x007f
 
-#define SCTP_GET_STATE(asoc)	((asoc)->state & SCTP_STATE_MASK)
-#define SCTP_SET_STATE(asoc, newstate)  ((asoc)->state = ((asoc)->state & ~SCTP_STATE_MASK) |  newstate)
-#define SCTP_CLEAR_SUBSTATE(asoc, substate) ((asoc)->state &= ~substate)
-#define SCTP_ADD_SUBSTATE(asoc, substate) ((asoc)->state |= substate)
+#define SCTP_GET_STATE(_stcb) \
+	((_stcb)->asoc.state & SCTP_STATE_MASK)
+#define SCTP_SET_STATE(_stcb, _state) \
+	sctp_set_state(_stcb, _state)
+#define SCTP_CLEAR_SUBSTATE(_stcb, _substate) \
+	(_stcb)->asoc.state &= ~(_substate)
+#define SCTP_ADD_SUBSTATE(_stcb, _substate) \
+	sctp_add_substate(_stcb, _substate)
 
 /* SCTP reachability state for each address */
 #define SCTP_ADDR_REACHABLE		0x001
@@ -521,7 +515,7 @@ extern void getwintimeofday(struct timeval *tv);
 /* Maximum the mapping array will  grow to (TSN mapping array) */
 #define SCTP_MAPPING_ARRAY	512
 
-/* size of the inital malloc on the mapping array */
+/* size of the initial malloc on the mapping array */
 #define SCTP_INITIAL_MAPPING_ARRAY  16
 /* how much we grow the mapping array each call */
 #define SCTP_MAPPING_ARRAY_INCR     32
@@ -557,16 +551,13 @@ extern void getwintimeofday(struct timeval *tv);
 #define SCTP_TIMER_TYPE_ASCONF		10
 #define SCTP_TIMER_TYPE_SHUTDOWNGUARD	11
 #define SCTP_TIMER_TYPE_AUTOCLOSE	12
-#define SCTP_TIMER_TYPE_EVENTWAKE	13
-#define SCTP_TIMER_TYPE_STRRESET        14
-#define SCTP_TIMER_TYPE_INPKILL         15
-#define SCTP_TIMER_TYPE_ASOCKILL        16
-#define SCTP_TIMER_TYPE_ADDR_WQ         17
-#define SCTP_TIMER_TYPE_ZERO_COPY       18
-#define SCTP_TIMER_TYPE_ZCOPY_SENDQ     19
-#define SCTP_TIMER_TYPE_PRIM_DELETED    20
+#define SCTP_TIMER_TYPE_STRRESET	13
+#define SCTP_TIMER_TYPE_INPKILL		14
+#define SCTP_TIMER_TYPE_ASOCKILL	15
+#define SCTP_TIMER_TYPE_ADDR_WQ		16
+#define SCTP_TIMER_TYPE_PRIM_DELETED	17
 /* add new timers here - and increment LAST */
-#define SCTP_TIMER_TYPE_LAST            21
+#define SCTP_TIMER_TYPE_LAST		18
 
 #define SCTP_IS_TIMER_TYPE_VALID(t)	(((t) > SCTP_TIMER_TYPE_NONE) && \
 					 ((t) < SCTP_TIMER_TYPE_LAST))
@@ -601,16 +592,6 @@ extern void getwintimeofday(struct timeval *tv);
 #define SCTP_ASOC_MAX_CHUNKS_ON_QUEUE 512
 #endif
 
-
-/* The conversion from time to ticks and vice versa is done by rounding
- * upwards. This way we can test in the code the time to be positive and
- * know that this corresponds to a positive number of ticks.
- */
-#define MSEC_TO_TICKS(x) ((hz == 1000) ? x : ((((x) * hz) + 999) / 1000))
-#define TICKS_TO_MSEC(x) ((hz == 1000) ? x : ((((x) * 1000) + (hz - 1)) / hz))
-
-#define SEC_TO_TICKS(x) ((x) * hz)
-#define TICKS_TO_SEC(x) (((x) + (hz - 1)) / hz)
 
 /*
  * Basically the minimum amount of time before I do a early FR. Making this
@@ -654,7 +635,7 @@ extern void getwintimeofday(struct timeval *tv);
 #define SCTP_DEF_PMTU_RAISE_SEC	600	/* 10 min between raise attempts */
 
 
-/* How many streams I request initally by default */
+/* How many streams I request initially by default */
 #define SCTP_OSTREAM_INITIAL 10
 #define SCTP_ISTREAM_INITIAL 2048
 
@@ -777,7 +758,7 @@ extern void getwintimeofday(struct timeval *tv);
 #define SCTP_DEFAULT_SPLIT_POINT_MIN 2904
 
 /* Maximum length of diagnostic information in error causes */
-#define SCTP_DIAG_INFO_LEN 64
+#define SCTP_DIAG_INFO_LEN 128
 
 /* ABORT CODES and other tell-tale location
  * codes are generated by adding the below
@@ -835,7 +816,7 @@ extern void getwintimeofday(struct timeval *tv);
 #define SCTP_LOC_33 0x00000021
 #define SCTP_LOC_34 0x00000022
 #define SCTP_LOC_35 0x00000023
-
+#define SCTP_LOC_36 0x00000024
 
 /* Free assoc codes */
 #define SCTP_NORMAL_PROC      0
@@ -911,12 +892,20 @@ extern void getwintimeofday(struct timeval *tv);
 
 /* modular comparison */
 /* See RFC 1982 for details. */
-#define SCTP_SSN_GT(a, b) (((a < b) && ((uint16_t)(b - a) > (1U<<15))) || \
-                           ((a > b) && ((uint16_t)(a - b) < (1U<<15))))
-#define SCTP_SSN_GE(a, b) (SCTP_SSN_GT(a, b) || (a == b))
-#define SCTP_TSN_GT(a, b) (((a < b) && ((uint32_t)(b - a) > (1U<<31))) || \
-                           ((a > b) && ((uint32_t)(a - b) < (1U<<31))))
-#define SCTP_TSN_GE(a, b) (SCTP_TSN_GT(a, b) || (a == b))
+#define SCTP_UINT16_GT(a, b) (((a < b) && ((uint16_t)(b - a) > (1U<<15))) || \
+                              ((a > b) && ((uint16_t)(a - b) < (1U<<15))))
+#define SCTP_UINT16_GE(a, b) (SCTP_UINT16_GT(a, b) || (a == b))
+#define SCTP_UINT32_GT(a, b) (((a < b) && ((uint32_t)(b - a) > (1U<<31))) || \
+                              ((a > b) && ((uint32_t)(a - b) < (1U<<31))))
+#define SCTP_UINT32_GE(a, b) (SCTP_UINT32_GT(a, b) || (a == b))
+
+#define SCTP_SSN_GT(a, b) SCTP_UINT16_GT(a, b)
+#define SCTP_SSN_GE(a, b) SCTP_UINT16_GE(a, b)
+#define SCTP_TSN_GT(a, b) SCTP_UINT32_GT(a, b)
+#define SCTP_TSN_GE(a, b) SCTP_UINT32_GE(a, b)
+#define SCTP_MID_GT(i, a, b) (((i) == 1) ? SCTP_UINT32_GT(a, b) : SCTP_UINT16_GT((uint16_t)a, (uint16_t)b))
+#define SCTP_MID_GE(i, a, b) (((i) == 1) ? SCTP_UINT32_GE(a, b) : SCTP_UINT16_GE((uint16_t)a, (uint16_t)b))
+#define SCTP_MID_EQ(i, a, b) (((i) == 1) ? a == b : (uint16_t)a == (uint16_t)b)
 
 /* Mapping array manipulation routines */
 #define SCTP_IS_TSN_PRESENT(arry, gap) ((arry[(gap >> 3)] >> (gap & 0x07)) & 0x01)
@@ -939,7 +928,7 @@ extern void getwintimeofday(struct timeval *tv);
  * element.  Each entry will take 2 4 byte ints (and of course the overhead
  * of the next pointer as well). Using 15 as an example will yield * ((8 *
  * 15) + 8) or 128 bytes of overhead for each timewait block that gets
- * initialized. Increasing it to 31 would yeild 256 bytes per block.
+ * initialized. Increasing it to 31 would yield 256 bytes per block.
  */
 #define SCTP_NUMBER_IN_VTAG_BLOCK 15
 /*
@@ -987,9 +976,6 @@ extern void getwintimeofday(struct timeval *tv);
 #define SCTP_SO_NOT_LOCKED	0
 
 
-#define SCTP_HOLDS_LOCK 1
-#define SCTP_NOT_LOCKED 0
-
 /*-
  * For address locks, do we hold the lock?
  */
@@ -1010,6 +996,9 @@ extern void getwintimeofday(struct timeval *tv);
 #define IN4_ISLINKLOCAL_ADDRESS(a) \
     ((((uint8_t *)&(a)->s_addr)[0] == 169) && \
      (((uint8_t *)&(a)->s_addr)[1] == 254))
+
+/* Maximum size of optval for IPPROTO_SCTP level socket options. */
+#define SCTP_SOCKET_OPTION_LIMIT (64 * 1024)
 
 #if defined(__Userspace__)
 #if defined(__Userspace_os_Windows)

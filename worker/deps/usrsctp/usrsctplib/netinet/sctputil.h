@@ -1,4 +1,6 @@
 /*-
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
  * Copyright (c) 2001-2007, by Cisco Systems, Inc. All rights reserved.
  * Copyright (c) 2008-2012, by Randall Stewart. All rights reserved.
  * Copyright (c) 2008-2012, by Michael Tuexen. All rights reserved.
@@ -32,7 +34,7 @@
 
 #ifdef __FreeBSD__
 #include <sys/cdefs.h>
-__FBSDID("$FreeBSD: head/sys/netinet/sctputil.h 297312 2016-03-27 10:04:25Z tuexen $");
+__FBSDID("$FreeBSD: head/sys/netinet/sctputil.h 359405 2020-03-28 20:25:45Z tuexen $");
 #endif
 
 #ifndef _NETINET_SCTP_UTIL_H_
@@ -107,6 +109,21 @@ void
 sctp_mtu_size_reset(struct sctp_inpcb *, struct sctp_association *, uint32_t);
 
 void
+sctp_wakeup_the_read_socket(struct sctp_inpcb *inp, struct sctp_tcb *stcb,
+    int so_locked
+#if !defined(__APPLE__) && !defined(SCTP_SO_LOCK_TESTING)
+    SCTP_UNUSED
+#endif
+);
+
+#if defined(__Userspace__)
+void sctp_invoke_recv_callback(struct sctp_inpcb *,
+    struct sctp_tcb *,
+    struct sctp_queued_to_read *,
+    int);
+
+#endif
+void
 sctp_add_to_readq(struct sctp_inpcb *inp,
     struct sctp_tcb *stcb,
     struct sctp_queued_to_read *control,
@@ -119,16 +136,6 @@ sctp_add_to_readq(struct sctp_inpcb *inp,
 #endif
     );
 
-int
-sctp_append_to_readq(struct sctp_inpcb *inp,
-    struct sctp_tcb *stcb,
-    struct sctp_queued_to_read *control,
-    struct mbuf *m,
-    int end,
-    int new_cumack,
-    struct sockbuf *sb);
-
-
 void sctp_iterator_worker(void);
 
 uint32_t sctp_get_prev_mtu(uint32_t);
@@ -137,9 +144,9 @@ uint32_t sctp_get_next_mtu(uint32_t);
 void
 sctp_timeout_handler(void *);
 
-uint32_t
+int
 sctp_calculate_rto(struct sctp_tcb *, struct sctp_association *,
-    struct sctp_nets *, struct timeval *, int, int);
+    struct sctp_nets *, struct timeval *, int);
 
 uint32_t sctp_calculate_len(struct mbuf *);
 
@@ -168,6 +175,9 @@ sctp_pull_off_control_to_new_inp(struct sctp_inpcb *old_inp,
 
 
 void sctp_stop_timers_for_shutdown(struct sctp_tcb *);
+
+/* Stop all timers for association and remote addresses. */
+void sctp_stop_association_timers(struct sctp_tcb *, bool);
 
 void sctp_report_all_outbound(struct sctp_tcb *, uint16_t, int, int
 #if !defined(__APPLE__) && !defined(SCTP_SO_LOCK_TESTING)
@@ -216,10 +226,9 @@ void sctp_handle_ootb(struct mbuf *, int, int,
 int sctp_connectx_helper_add(struct sctp_tcb *stcb, struct sockaddr *addr,
     int totaddr, int *error);
 
-struct sctp_tcb *
-sctp_connectx_helper_find(struct sctp_inpcb *inp, struct sockaddr *addr,
-    unsigned int *totaddr, unsigned int *num_v4, unsigned int *num_v6,
-    int *error, unsigned int limit, int *bad_addr);
+int
+sctp_connectx_helper_find(struct sctp_inpcb *, struct sockaddr *,
+    unsigned int, unsigned int *, unsigned int *, unsigned int);
 
 int sctp_is_there_an_abort_here(struct mbuf *, int, uint32_t *);
 #ifdef INET6
@@ -396,7 +405,7 @@ void sctp_log_closing(struct sctp_inpcb *inp, struct sctp_tcb *stcb, int16_t loc
 
 void sctp_log_lock(struct sctp_inpcb *inp, struct sctp_tcb *stcb, uint8_t from);
 void sctp_log_maxburst(struct sctp_tcb *stcb, struct sctp_nets *, int, int, uint8_t);
-void sctp_log_block(uint8_t, struct sctp_association *, size_t);
+void sctp_log_block(uint8_t, struct sctp_association *, ssize_t);
 void sctp_log_rwnd(uint8_t, uint32_t, uint32_t, uint32_t);
 void sctp_log_rwnd_set(uint8_t, uint32_t, uint32_t, uint32_t, uint32_t);
 int sctp_fill_stat_log(void *, size_t *);
@@ -414,5 +423,17 @@ sctp_auditing(int, struct sctp_inpcb *, struct sctp_tcb *,
 void sctp_audit_log(uint8_t, uint8_t);
 
 #endif
+uint32_t sctp_min_mtu(uint32_t, uint32_t, uint32_t);
+#if defined(__FreeBSD__)
+void sctp_hc_set_mtu(union sctp_sockstore *, uint16_t, uint32_t);
+uint32_t sctp_hc_get_mtu(union sctp_sockstore *, uint16_t);
+#endif
+void sctp_set_state(struct sctp_tcb *, int);
+void sctp_add_substate(struct sctp_tcb *, int);
+uint32_t sctp_ticks_to_msecs(uint32_t);
+uint32_t sctp_msecs_to_ticks(uint32_t);
+uint32_t sctp_ticks_to_secs(uint32_t);
+uint32_t sctp_secs_to_ticks(uint32_t);
+
 #endif				/* _KERNEL */
 #endif

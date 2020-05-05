@@ -149,20 +149,18 @@ else()
 endif()
 
 target_link_libraries(${PROJECT_NAME}
-    libuv
-    openssl
-    abseil-cpp
+    uv
+    ssl
+    absl_internal_throw_delegate
+    absl_strings
+    absl_optional
 )
 
 target_include_directories(${PROJECT_NAME}
     PRIVATE
     libwebrtc
     ../../include
-    ../openssl/include
-    ${PROJECT_BINARY_DIR}/../openssl/include
-    ../libuv/include
     ../json/single_include/nlohmann
-    deps/abseil-cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/libwebrtc
 )
 
@@ -170,6 +168,7 @@ target_include_directories(${PROJECT_NAME}
     INTERFACE
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/libwebrtc
+    ${CMAKE_CURRENT_SOURCE_DIR}/deps/abseil-cpp
 )
 
 install(TARGETS ${PROJECT_NAME} DESTINATION lib)

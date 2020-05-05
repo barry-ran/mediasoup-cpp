@@ -1,4 +1,6 @@
 /*-
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
  * Copyright (c) 2001-2007, by Cisco Systems, Inc. All rights reserved.
  * Copyright (c) 2008-2012, by Randall Stewart. All rights reserved.
  * Copyright (c) 2008-2012, by Michael Tuexen. All rights reserved.
@@ -32,7 +34,7 @@
 
 #ifdef __FreeBSD__
 #include <sys/cdefs.h>
-__FBSDID("$FreeBSD: head/sys/netinet/sctp_asconf.h 237715 2012-06-28 16:01:08Z tuexen $");
+__FBSDID("$FreeBSD: head/sys/netinet/sctp_asconf.h 359152 2020-03-19 21:01:16Z tuexen $");
 #endif
 
 #ifndef _NETINET_SCTP_ASCONF_H_
@@ -43,7 +45,7 @@ __FBSDID("$FreeBSD: head/sys/netinet/sctp_asconf.h 237715 2012-06-28 16:01:08Z t
 /*
  * function prototypes
  */
-extern void sctp_asconf_cleanup(struct sctp_tcb *, struct sctp_nets *);
+extern void sctp_asconf_cleanup(struct sctp_tcb *);
 
 extern struct mbuf *sctp_compose_asconf(struct sctp_tcb *, int *, int);
 
@@ -71,9 +73,6 @@ extern void sctp_asconf_iterator_end(void *ptr, uint32_t val);
 extern int32_t
 sctp_set_primary_ip_address_sa(struct sctp_tcb *,
     struct sockaddr *);
-
-extern void
-sctp_set_primary_ip_address(struct sctp_ifa *ifa);
 
 extern void
 sctp_check_address_list(struct sctp_tcb *, struct mbuf *, int, int,

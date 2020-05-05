@@ -1,4 +1,6 @@
 /*-
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
  * Copyright (c) 2001-2007, by Cisco Systems, Inc. All rights reserved.
  * Copyright (c) 2008-2012, by Randall Stewart. All rights reserved.
  * Copyright (c) 2008-2012, by Michael Tuexen. All rights reserved.
@@ -32,7 +34,7 @@
 
 #ifdef __FreeBSD__
 #include <sys/cdefs.h>
-__FBSDID("$FreeBSD: head/sys/netinet/sctp_cc_functions.c 297208 2016-03-23 13:28:04Z tuexen $");
+__FBSDID("$FreeBSD: head/sys/netinet/sctp_cc_functions.c 359405 2020-03-28 20:25:45Z tuexen $");
 #endif
 
 #include <netinet/sctp_os.h>
@@ -48,8 +50,8 @@ __FBSDID("$FreeBSD: head/sys/netinet/sctp_cc_functions.c 297208 2016-03-23 13:28
 #include <netinet/sctp_timer.h>
 #include <netinet/sctp_auth.h>
 #include <netinet/sctp_asconf.h>
-#if defined(__FreeBSD__) && __FreeBSD_version >= 803000
-#include <netinet/sctp_dtrace_declare.h>
+#if defined(__FreeBSD__)
+#include <netinet/sctp_kdtrace.h>
 #endif
 
 #define SHIFT_MPTCP_MULTI_N 40
@@ -212,7 +214,7 @@ sctp_cwnd_update_after_fr(struct sctp_tcb *stcb,
 					/* Mark end of the window */
 					asoc->fast_recovery_tsn = asoc->sending_seq - 1;
 				} else {
-					asoc->fast_recovery_tsn = lchk->rec.data.TSN_seq - 1;
+					asoc->fast_recovery_tsn = lchk->rec.data.tsn - 1;
 				}
 
 				/*
@@ -225,7 +227,7 @@ sctp_cwnd_update_after_fr(struct sctp_tcb *stcb,
 					/* Mark end of the window */
 					net->fast_recovery_tsn = asoc->sending_seq - 1;
 				} else {
-					net->fast_recovery_tsn = lchk->rec.data.TSN_seq - 1;
+					net->fast_recovery_tsn = lchk->rec.data.tsn - 1;
 				}
 
 				sctp_timer_stop(SCTP_TIMER_TYPE_SEND,
@@ -245,7 +247,7 @@ sctp_cwnd_update_after_fr(struct sctp_tcb *stcb,
 }
 
 /* Defines for instantaneous bw decisions */
-#define SCTP_INST_LOOSING 1 /* Loosing to other flows */
+#define SCTP_INST_LOOSING 1 /* Losing to other flows */
 #define SCTP_INST_NEUTRAL 2 /* Neutral, no indication */
 #define SCTP_INST_GAINING 3 /* Gaining, step down possible */
 
@@ -618,7 +620,7 @@ cc_bw_increase(struct sctp_tcb *stcb SCTP_UNUSED, struct sctp_nets *net, uint64_
 	return (0);
 }
 
-/* RTCC Algoritm to limit growth of cwnd, return
+/* RTCC Algorithm to limit growth of cwnd, return
  * true if you want to NOT allow cwnd growth
  */
 static int
@@ -1199,7 +1201,7 @@ sctp_cwnd_update_after_ecn_echo_common(struct sctp_tcb *stcb, struct sctp_nets *
 				sctp_log_cwnd(stcb, net, (net->cwnd - old_cwnd), SCTP_CWND_LOG_FROM_SAT);
 			}
 		} else {
-			/* Further tuning down required over the drastic orginal cut */
+			/* Further tuning down required over the drastic original cut */
 			net->ssthresh -= (net->mtu * num_pkt_lost);
 			net->cwnd -= (net->mtu * num_pkt_lost);
 			if (SCTP_BASE_SYSCTL(sctp_logging_level) & SCTP_CWND_MONITOR_ENABLE) {
@@ -1382,7 +1384,7 @@ sctp_cwnd_update_after_sack(struct sctp_tcb *stcb,
 			    struct sctp_association *asoc,
 			    int accum_moved, int reneged_all, int will_exit)
 {
-	/* Passing a zero argument in last disables the rtcc algoritm */
+	/* Passing a zero argument in last disables the rtcc algorithm */
 	sctp_cwnd_update_after_sack_common(stcb, asoc, accum_moved, reneged_all, will_exit, 0);
 }
 
@@ -1390,13 +1392,13 @@ static void
 sctp_cwnd_update_after_ecn_echo(struct sctp_tcb *stcb, struct sctp_nets *net,
 	int in_window, int num_pkt_lost)
 {
-	/* Passing a zero argument in last disables the rtcc algoritm */
+	/* Passing a zero argument in last disables the rtcc algorithm */
 	sctp_cwnd_update_after_ecn_echo_common(stcb, net, in_window, num_pkt_lost, 0);
 }
 
 /* Here starts the RTCCVAR type CC invented by RRS which
  * is a slight mod to RFC2581. We reuse a common routine or
- * two since these algoritms are so close and need to
+ * two since these algorithms are so close and need to
  * remain the same.
  */
 static void
@@ -1601,7 +1603,7 @@ sctp_cwnd_update_rtcc_after_sack(struct sctp_tcb *stcb,
 				 struct sctp_association *asoc,
 				 int accum_moved, int reneged_all, int will_exit)
 {
-	/* Passing a one argument at the last enables the rtcc algoritm */
+	/* Passing a one argument at the last enables the rtcc algorithm */
 	sctp_cwnd_update_after_sack_common(stcb, asoc, accum_moved, reneged_all, will_exit, 1);
 }
 
@@ -1806,7 +1808,7 @@ sctp_hs_cwnd_update_after_fr(struct sctp_tcb *stcb,
 					/* Mark end of the window */
 					asoc->fast_recovery_tsn = asoc->sending_seq - 1;
 				} else {
-					asoc->fast_recovery_tsn = lchk->rec.data.TSN_seq - 1;
+					asoc->fast_recovery_tsn = lchk->rec.data.tsn - 1;
 				}
 
 				/*
@@ -1819,7 +1821,7 @@ sctp_hs_cwnd_update_after_fr(struct sctp_tcb *stcb,
 					/* Mark end of the window */
 					net->fast_recovery_tsn = asoc->sending_seq - 1;
 				} else {
-					net->fast_recovery_tsn = lchk->rec.data.TSN_seq - 1;
+					net->fast_recovery_tsn = lchk->rec.data.tsn - 1;
 				}
 
 				sctp_timer_stop(SCTP_TIMER_TYPE_SEND,
@@ -1960,7 +1962,7 @@ htcp_cong_time(struct htcp *ca)
 static inline uint32_t
 htcp_ccount(struct htcp *ca)
 {
-	return (htcp_cong_time(ca)/ca->minRTT);
+	return (ca->minRTT == 0 ? htcp_cong_time(ca) : htcp_cong_time(ca)/ca->minRTT);
 }
 
 static inline void
@@ -1998,7 +2000,7 @@ measure_rtt(struct sctp_nets *net)
 	if (net->fast_retran_ip == 0 && net->ssthresh < 0xFFFF && htcp_ccount(&net->cc_mod.htcp_ca) > 3) {
 		if (net->cc_mod.htcp_ca.maxRTT < net->cc_mod.htcp_ca.minRTT)
 			net->cc_mod.htcp_ca.maxRTT = net->cc_mod.htcp_ca.minRTT;
-		if (net->cc_mod.htcp_ca.maxRTT < srtt && srtt <= net->cc_mod.htcp_ca.maxRTT+MSEC_TO_TICKS(20))
+		if (net->cc_mod.htcp_ca.maxRTT < srtt && srtt <= net->cc_mod.htcp_ca.maxRTT+sctp_msecs_to_ticks(20))
 			net->cc_mod.htcp_ca.maxRTT = srtt;
 	}
 }
@@ -2058,7 +2060,7 @@ htcp_beta_update(struct htcp *ca, uint32_t minRTT, uint32_t maxRTT)
 		}
 	}
 
-	if (ca->modeswitch && minRTT > (uint32_t)MSEC_TO_TICKS(10) && maxRTT) {
+	if (ca->modeswitch && minRTT > sctp_msecs_to_ticks(10) && maxRTT) {
 		ca->beta = (minRTT<<7)/maxRTT;
 		if (ca->beta < BETA_MIN)
 			ca->beta = BETA_MIN;
@@ -2333,7 +2335,7 @@ sctp_htcp_cwnd_update_after_fr(struct sctp_tcb *stcb,
 					/* Mark end of the window */
 					asoc->fast_recovery_tsn = asoc->sending_seq - 1;
 				} else {
-					asoc->fast_recovery_tsn = lchk->rec.data.TSN_seq - 1;
+					asoc->fast_recovery_tsn = lchk->rec.data.tsn - 1;
 				}
 
 				/*
@@ -2346,7 +2348,7 @@ sctp_htcp_cwnd_update_after_fr(struct sctp_tcb *stcb,
 					/* Mark end of the window */
 					net->fast_recovery_tsn = asoc->sending_seq - 1;
 				} else {
-					net->fast_recovery_tsn = lchk->rec.data.TSN_seq - 1;
+					net->fast_recovery_tsn = lchk->rec.data.tsn - 1;
 				}
 
 				sctp_timer_stop(SCTP_TIMER_TYPE_SEND,
@@ -2408,7 +2410,7 @@ sctp_htcp_cwnd_update_after_ecn_echo(struct sctp_tcb *stcb,
 
 const struct sctp_cc_functions sctp_cc_functions[] = {
 {
-#if defined(__Windows__) || defined(__Userspace_os_Windows)
+#if defined(__Windows__) || (defined(__Userspace_os_Windows) && !defined(__MINGW32__))
 	sctp_set_initial_cc_param,
 	sctp_cwnd_update_after_sack,
 	sctp_cwnd_update_exit_pf_common,
@@ -2429,7 +2431,7 @@ const struct sctp_cc_functions sctp_cc_functions[] = {
 #endif
 },
 {
-#if defined(__Windows__) || defined(__Userspace_os_Windows)
+#if defined(__Windows__) || (defined(__Userspace_os_Windows) && !defined(__MINGW32__))
 	sctp_set_initial_cc_param,
 	sctp_hs_cwnd_update_after_sack,
 	sctp_cwnd_update_exit_pf_common,
@@ -2450,7 +2452,7 @@ const struct sctp_cc_functions sctp_cc_functions[] = {
 #endif
 },
 {
-#if defined(__Windows__) || defined(__Userspace_os_Windows)
+#if defined(__Windows__) || (defined(__Userspace_os_Windows) && !defined(__MINGW32__))
 	sctp_htcp_set_initial_cc_param,
 	sctp_htcp_cwnd_update_after_sack,
 	sctp_cwnd_update_exit_pf_common,
@@ -2471,7 +2473,7 @@ const struct sctp_cc_functions sctp_cc_functions[] = {
 #endif
 },
 {
-#if defined(__Windows__) || defined(__Userspace_os_Windows)
+#if defined(__Windows__) || (defined(__Userspace_os_Windows) && !defined(__MINGW32__))
 	sctp_set_rtcc_initial_cc_param,
 	sctp_cwnd_update_rtcc_after_sack,
 	sctp_cwnd_update_exit_pf_common,

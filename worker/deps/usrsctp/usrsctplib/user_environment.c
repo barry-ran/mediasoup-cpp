@@ -60,22 +60,28 @@ u_short ip_id = 0; /*__Userspace__ TODO Should it be initialized to zero? */
  */
 userland_mutex_t atomic_mtx;
 
-/* Source: /usr/src/sys/dev/random/harvest.c */
-static int read_random_phony(void *, int);
-
-static int (*read_func)(void *, int) = read_random_phony;
-
-/* Userland-visible version of read_random */
-int
-read_random(void *buf, int count)
-{
-	return ((*read_func)(buf, count));
-}
-
 /* If the entropy device is not loaded, make a token effort to
  * provide _some_ kind of randomness. This should only be used
  * inside other RNG's, like arc4random(9).
  */
+#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
+static int
+read_random_phony(void *buf, int count)
+{
+	memset(buf, 'A', count);
+	return (count);
+}
+#else
+#if defined(__Userspace_os_FreeBSD) || defined(__Userspace_os_Darwin)
+static int
+read_random_phony(void *buf, int count)
+{
+	if (count >= 0) {
+		arc4random_buf(buf, count);
+	}
+	return (count);
+}
+#else
 static int
 read_random_phony(void *buf, int count)
 {
@@ -92,5 +98,16 @@ read_random_phony(void *buf, int count)
 	}
 
 	return (count);
+}
+#endif
+#endif
+
+static int (*read_func)(void *, int) = read_random_phony;
+
+/* Userland-visible version of read_random */
+int
+read_random(void *buf, int count)
+{
+	return ((*read_func)(buf, count));
 }
 
