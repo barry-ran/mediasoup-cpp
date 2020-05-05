@@ -16,8 +16,10 @@ add_subdirectory(deps/libwebrtc)
 add_subdirectory(deps/catch2)
 
 set(TEST_APPS OFF CACHE INTERNAL "")
+set(ENABLE_OPENSSL ON CACHE INTERNAL "")
 add_subdirectory(deps/libsrtp)
 unset(TEST_APPS)
+unset(ENABLE_OPENSSL)
 
 add_subdirectory(deps/netstring)
 
