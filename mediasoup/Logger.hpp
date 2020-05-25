@@ -1,5 +1,11 @@
 #pragma once
 
+namespace mscpp
+{
+
 class Logger {
-    void error();
+public:
+    static void error();
 };
+
+}

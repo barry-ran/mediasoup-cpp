@@ -7,7 +7,6 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${CMAKE_BUILD_TYPE}")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${CMAKE_BUILD_TYPE}")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${CMAKE_BUILD_TYPE}")
 
-
 # add subdirectory
 add_subdirectory(deps/libuv)
 
@@ -49,4 +48,5 @@ ENDIF()
 
 add_subdirectory(worker)
 add_subdirectory(mediasoup)
+add_subdirectory(demo)
 
