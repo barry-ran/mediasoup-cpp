@@ -7,6 +7,7 @@ set(mediasoup_headers
   Logger.hpp
   MediasoupEngine.hpp
   EventEmitter.hpp
+  Promise.hpp
 )
 set(mediasoup_sources
   Logger.cpp
