@@ -6,10 +6,12 @@ project(${PROJECT_NAME})
 set(mediasoup_headers
   Logger.hpp
   MediasoupEngine.hpp
+  EventEmitter.hpp
 )
 set(mediasoup_sources
   Logger.cpp
   MediasoupEngine.cpp
+  EventEmitter.cpp
 )
 
 add_library(mediasoup
