@@ -5,9 +5,11 @@ project(${PROJECT_NAME})
 
 set(mediasoup_headers
   Logger.hpp
+  MediasoupEngine.hpp
 )
 set(mediasoup_sources
   Logger.cpp
+  MediasoupEngine.cpp
 )
 
 add_library(mediasoup
@@ -15,6 +17,8 @@ add_library(mediasoup
   ${mediasoup_sources}
   ${mediasoup_headers}
 )
+
+target_link_libraries(${PROJECT_NAME} PRIVATE spdlog)
 
 target_include_directories(${PROJECT_NAME}
           INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})

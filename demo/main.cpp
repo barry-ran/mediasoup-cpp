@@ -1,9 +1,9 @@
 #include <stdio.h>
 
-#include "Logger.hpp"
+#include "MediasoupEngine.hpp"
 
 int main(int argc, char *argv[])
 {   
-    mscpp::Logger::error();
+    mediasoup::MediasoupEngine::Init();
     getchar();
 }

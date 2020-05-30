@@ -46,6 +46,8 @@ IF(WIN32)
 add_subdirectory(deps/wingetopt)
 ENDIF()
 
+add_subdirectory(deps/spdlog)
+
 add_subdirectory(worker)
 add_subdirectory(mediasoup)
 add_subdirectory(demo)
