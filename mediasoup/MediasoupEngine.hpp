@@ -1,6 +1,7 @@
 #pragma once
 #include "IMediasoupEngine.hpp"
 #include "common/Singleton.hpp"
+#include "uv.h"
 
 namespace mediasoup
 {
@@ -13,6 +14,16 @@ public:
     virtual void Test() override;
 	virtual bool Init() override;
     virtual void Destroy() override;
+    virtual IWorker* CreateWorker() override;
+
+public:
+    void WorkerFun();
+    void Async(uv_async_t *handle);
+
+private:
+    uv_thread_t m_workThread = nullptr;
+    uv_async_t m_async = {};
+    
 };
 
 }

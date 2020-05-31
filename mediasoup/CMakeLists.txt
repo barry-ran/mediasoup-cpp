@@ -9,11 +9,13 @@ set(mediasoup_headers
   MediasoupEngine.hpp
   EventEmitter.hpp
   Promise.hpp
+  Worker.hpp
 )
 set(mediasoup_sources
   Logger.cpp
   MediasoupEngine.cpp
   EventEmitter.cpp
+  Worker.cpp
 )
 
 add_library(mediasoup
@@ -22,7 +24,10 @@ add_library(mediasoup
   ${mediasoup_headers}
 )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE spdlog)
+target_link_libraries(${PROJECT_NAME} PRIVATE
+    spdlog
+    uv
+)
 
 target_include_directories(${PROJECT_NAME}
           INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
