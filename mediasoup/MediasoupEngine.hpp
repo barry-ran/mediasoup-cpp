@@ -1,14 +1,18 @@
 #pragma once
+#include "IMediasoupEngine.hpp"
+#include "common/Singleton.hpp"
 
 namespace mediasoup
 {
 
-class MediasoupEngine {
+class MediasoupEngine : public IMediasoupEngine, public mediasoup::Singleton<MediasoupEngine> {
 public:
     MediasoupEngine();
-    ~MediasoupEngine();
+    virtual ~MediasoupEngine();
 
-	static bool Init();
+    virtual void Test() override;
+	virtual bool Init() override;
+    virtual void Destroy() override;
 };
 
 }

@@ -5,6 +5,7 @@ project(${PROJECT_NAME})
 
 set(mediasoup_headers
   Logger.hpp
+  IMediasoupEngine.hpp
   MediasoupEngine.hpp
   EventEmitter.hpp
   Promise.hpp
