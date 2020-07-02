@@ -1,7 +1,7 @@
-# mediasoup-cpp
-The full C++ implementation of mediasoup (The project is in progress).
+# mediasoup-cmake
 
-I use cmake instead of gyp, more convenient to compile and learn mediasoup.
+
+I use cmake instead of gyp. just for test.
 
 About [mediasoup](https://github.com/versatica/mediasoup), you can visit [here](https://github.com/versatica/mediasoup) to learn more.
 
