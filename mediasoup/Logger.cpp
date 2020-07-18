@@ -16,7 +16,7 @@ Logger::Logger() {
     //spdlog::set_default_logger(fileLogger);
     spdlog::set_level(spdlog::level::info);
 #else
-    spdlog::set_level(spdlog::level::debug);
+    spdlog::set_level(spdlog::level::trace);
 #endif
     spdlog::flush_every(std::chrono::seconds(2));
     spdlog::flush_on(spdlog::level::err);

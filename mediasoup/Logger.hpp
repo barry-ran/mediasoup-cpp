@@ -11,6 +11,11 @@ public:
     Logger();
     ~Logger();
 
+    template <typename... Args>
+    void trace(const Args&... args) {
+	    spdlog::trace(args...);
+    }
+
 	template <typename... Args>
     void debug(const Args&... args) {
 	    spdlog::debug(args...);
@@ -36,5 +41,6 @@ public:
 #define MS_lOGGERI(...) mediasoup::Logger::GetInstance().info(__VA_ARGS__)
 #define MS_lOGGERW(...) mediasoup::Logger::GetInstance().warn(__VA_ARGS__)
 #define MS_lOGGERE(...) mediasoup::Logger::GetInstance().error(__VA_ARGS__)
+#define MS_lOGGERF() mediasoup::Logger::GetInstance().debug(SPDLOG_FUNCTION)
 
 }

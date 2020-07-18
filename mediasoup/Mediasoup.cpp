@@ -10,23 +10,23 @@ namespace mediasoup
 {
 
 mediasoup::IMediasoup* CreateMediasoup() {
-    MS_lOGGERI("CreateMediasoup");
+    MS_lOGGERF();
     return &mediasoup::Mediasoup::GetInstance();
 }
 
 void DestroyMediasoup(mediasoup::IMediasoup* mediasoup) {
+    MS_lOGGERF();
     if (!mediasoup) {
         return;
     }
-    MS_lOGGERI("DestroyMediasoup");
 }
 
 Mediasoup::Mediasoup() {
-
+    MS_lOGGERF();
 }
 
 Mediasoup::~Mediasoup() {
-   
+    MS_lOGGERF();
 }
 
 void Mediasoup::Test() {
@@ -80,14 +80,17 @@ void Mediasoup::Test() {
 }
 
 void StaticWorkerFun(void* arg) {
+    MS_lOGGERF();
     static_cast<Mediasoup*>(arg)->WorkerFun();
 }
 
 void StaticAsync(uv_async_t* handle) {
+    MS_lOGGERF();
     static_cast<Mediasoup*>(handle->loop->data)->Async(handle);
 }
 
 bool Mediasoup::Init() {
+    MS_lOGGERF();
     if (m_workThreadCreated) {
         MS_lOGGERI("already Init");
         return true;
@@ -105,6 +108,7 @@ bool Mediasoup::Init() {
 }
 
 void Mediasoup::Destroy()  {
+    MS_lOGGERF();
     if (!m_workThreadCreated) {
         MS_lOGGERI("need Init first");
         return;
@@ -120,10 +124,12 @@ void Mediasoup::Destroy()  {
 }
 
 IWorker* Mediasoup::CreateWorker()  {
+    MS_lOGGERF();
     return new Worker();
 }
 
 void Mediasoup::WorkerFun() {
+    MS_lOGGERF();
     MS_lOGGERI("WorkerFun begine");
 
     uv_loop_t* loop = new uv_loop_t;
@@ -151,7 +157,7 @@ void Mediasoup::WorkerFun() {
 }
 
 void Mediasoup::Async(uv_async_t* handle) {
-    MS_lOGGERI("async stop");
+    MS_lOGGERF();
     uv_stop(handle->loop);
 }
 
