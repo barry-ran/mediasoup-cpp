@@ -1,4 +1,4 @@
-#include "MediasoupEngine.hpp"
+#include "Mediasoup.hpp"
 #include "Logger.hpp"
 #include "EventEmitter.hpp"
 #include "Promise.hpp"
@@ -9,27 +9,27 @@ using namespace promise;
 namespace mediasoup
 {
 
-mediasoup::IMediasoupEngine* CreateMediasoupEngine() {
-    MS_lOGGERI("CreateMediasoupEngine");
-    return &mediasoup::MediasoupEngine::GetInstance();
+mediasoup::IMediasoup* CreateMediasoup() {
+    MS_lOGGERI("CreateMediasoup");
+    return &mediasoup::Mediasoup::GetInstance();
 }
 
-void DestroyMediasoupEngine(mediasoup::IMediasoupEngine *engine) {
-    if (!engine) {
+void DestroyMediasoup(mediasoup::IMediasoup* mediasoup) {
+    if (!mediasoup) {
         return;
     }
-    MS_lOGGERI("DestroyMediasoupEngine");
+    MS_lOGGERI("DestroyMediasoup");
 }
 
-MediasoupEngine::MediasoupEngine() {
+Mediasoup::Mediasoup() {
 
 }
 
-MediasoupEngine::~MediasoupEngine() {
+Mediasoup::~Mediasoup() {
    
 }
 
-void MediasoupEngine::Test() {
+void Mediasoup::Test() {
     return;
     MS_lOGGERD("Support for int: {0:d};  hex: {0:x};  oct: {0:o}; bin: {0:b}", 42);
     MS_lOGGERW("Some error message with arg: {}", 1);
@@ -79,15 +79,15 @@ void MediasoupEngine::Test() {
     });
 }
 
-void StaticWorkerFun(void *arg) {
-    static_cast<MediasoupEngine*>(arg)->WorkerFun();
+void StaticWorkerFun(void* arg) {
+    static_cast<Mediasoup*>(arg)->WorkerFun();
 }
 
-void StaticAsync(uv_async_t *handle) {
-    static_cast<MediasoupEngine*>(handle->loop->data)->Async(handle);
+void StaticAsync(uv_async_t* handle) {
+    static_cast<Mediasoup*>(handle->loop->data)->Async(handle);
 }
 
-bool MediasoupEngine::Init() {
+bool Mediasoup::Init() {
     if (m_workThreadCreated) {
         MS_lOGGERI("already Init");
         return true;
@@ -104,7 +104,7 @@ bool MediasoupEngine::Init() {
 	return true;
 }
 
-void MediasoupEngine::Destroy()  {
+void Mediasoup::Destroy()  {
     if (!m_workThreadCreated) {
         MS_lOGGERI("need Init first");
         return;
@@ -119,11 +119,11 @@ void MediasoupEngine::Destroy()  {
     MS_lOGGERI("work thread quit");
 }
 
-IWorker* MediasoupEngine::CreateWorker()  {
+IWorker* Mediasoup::CreateWorker()  {
     return new Worker();
 }
 
-void MediasoupEngine::WorkerFun() {
+void Mediasoup::WorkerFun() {
     MS_lOGGERI("WorkerFun begine");
 
     uv_loop_t* loop = new uv_loop_t;
@@ -150,7 +150,7 @@ void MediasoupEngine::WorkerFun() {
     MS_lOGGERI("WorkerFun end");
 }
 
-void MediasoupEngine::Async(uv_async_t *handle) {
+void Mediasoup::Async(uv_async_t* handle) {
     MS_lOGGERI("async stop");
     uv_stop(handle->loop);
 }

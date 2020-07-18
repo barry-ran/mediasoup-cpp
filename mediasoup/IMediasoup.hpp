@@ -3,9 +3,9 @@
 namespace mediasoup
 {
 
-class IMediasoupEngine {
+class IMediasoup {
   public:
-    virtual ~IMediasoupEngine() {}
+    virtual ~IMediasoup() {}
 
     virtual void Test() = 0;
 	  virtual bool Init() = 0;
@@ -14,8 +14,8 @@ class IMediasoupEngine {
     virtual IWorker* CreateWorker() = 0;
 };
 
-mediasoup::IMediasoupEngine* CreateMediasoupEngine();
+mediasoup::IMediasoup* CreateMediasoup();
 
-void DestroyMediasoupEngine(mediasoup::IMediasoupEngine *engine);
+void DestroyMediasoup(mediasoup::IMediasoup* mediasoup);
 
 }

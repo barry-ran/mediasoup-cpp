@@ -1,17 +1,17 @@
 #include <stdio.h>
 
-#include "IMediasoupEngine.hpp"
+#include "IMediasoup.hpp"
 
 int main(int argc, char *argv[])
 {   
-    mediasoup::IMediasoupEngine* engine = mediasoup::CreateMediasoupEngine();
-    engine->Init();
-    engine->Test();
+    mediasoup::IMediasoup* mediasoup = mediasoup::CreateMediasoup();
+    mediasoup->Init();
+    mediasoup->Test();
 
     getchar();
 
-    engine->Destroy();
-    mediasoup::DestroyMediasoupEngine(engine);
+    mediasoup->Destroy();
+    mediasoup::DestroyMediasoup(mediasoup);
 
     getchar();
 }

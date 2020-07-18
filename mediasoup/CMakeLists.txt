@@ -5,15 +5,15 @@ project(${PROJECT_NAME})
 
 set(mediasoup_headers
   Logger.hpp
-  IMediasoupEngine.hpp
-  MediasoupEngine.hpp
+  IMediasoup.hpp
+  Mediasoup.hpp
   EventEmitter.hpp
   Promise.hpp
   Worker.hpp
 )
 set(mediasoup_sources
   Logger.cpp
-  MediasoupEngine.cpp
+  Mediasoup.cpp
   EventEmitter.cpp
   Worker.cpp
 )
