@@ -11,12 +11,15 @@ set(mediasoup_headers
   Promise.hpp
   IWorker.hpp
   Worker.hpp
+  RtpParameters.hpp
+  SupportedRtpCapabilities.hpp
 )
 set(mediasoup_sources
   Logger.cpp
   Mediasoup.cpp
   EventEmitter.cpp
   Worker.cpp
+  SupportedRtpCapabilities.cpp
 )
 
 add_library(mediasoup

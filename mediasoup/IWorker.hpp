@@ -1,15 +1,9 @@
 #pragma once
 #include <string>
+#include <vector>
 
 namespace mediasoup
 {
-
-enum class WorkerLogLevel {
-    WL_DEBUG,
-    WL_WARN,
-    WL_ERROR,
-    WL_NONE
-};
 
 struct WorkerSettings {
 	/**
@@ -17,7 +11,7 @@ struct WorkerSettings {
 	 * the Debugging documentation). Valid values are 'debug', 'warn', 'error' and
 	 * 'none'. Default 'error'.
 	 */
-    WorkerLogLevel logLevel = WorkerLogLevel::WL_ERROR;
+	std::string logLevel = "error";
 
 	/**
 	 * Log tags for debugging. Check the list of available tags in Debugging
@@ -50,7 +44,7 @@ struct WorkerSettings {
 	/**
 	 * Custom application data.
 	 */
-	void* appData;
+	std::vector<std::pair<std::string, int>> appData;
 };
 
 class IWorker {

@@ -3,6 +3,7 @@
 #include "EventEmitter.hpp"
 #include "Promise.hpp"
 #include "Worker.hpp"
+#include "SupportedRtpCapabilities.hpp"
 
 using namespace promise;
 
@@ -140,6 +141,11 @@ IWorker* Mediasoup::CreateWorker(const WorkerSettings& workerSettings)  {
 
     // todo observer?
     return work;
+}
+
+
+RtpCapabilities Mediasoup::GetSupportedRtpCapabilities() {
+	return supportedRtpCapabilities;
 }
 
 void Mediasoup::WorkerFun() {

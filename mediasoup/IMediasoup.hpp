@@ -1,5 +1,7 @@
 #pragma once
 #include "IWorker.hpp"
+#include "RtpParameters.hpp"
+
 namespace mediasoup
 {
 
@@ -11,7 +13,15 @@ class IMediasoup {
 	  virtual bool Init() = 0;
     virtual void Destroy() = 0;
 
+	/**
+	 * Create a Worker.
+	 */
     virtual IWorker* CreateWorker(const WorkerSettings& workerSettings) = 0;
+
+	/**
+	 * Get a cloned copy of the mediasoup supported RTP capabilities.
+	 */
+	virtual RtpCapabilities GetSupportedRtpCapabilities() = 0;
 };
 
 mediasoup::IMediasoup* CreateMediasoup();

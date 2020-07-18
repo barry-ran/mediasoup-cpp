@@ -17,6 +17,7 @@ public:
 	virtual bool Init() override;
     virtual void Destroy() override;
     virtual IWorker* CreateWorker(const WorkerSettings& workerSettings) override;
+	virtual RtpCapabilities GetSupportedRtpCapabilities() override;
 
 public:
     void WorkerFun();
