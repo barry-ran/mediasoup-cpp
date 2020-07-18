@@ -9,6 +9,7 @@ set(mediasoup_headers
   Mediasoup.hpp
   EventEmitter.hpp
   Promise.hpp
+  IWorker.hpp
   Worker.hpp
 )
 set(mediasoup_sources

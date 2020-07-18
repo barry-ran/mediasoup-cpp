@@ -11,7 +11,7 @@ class IMediasoup {
 	  virtual bool Init() = 0;
     virtual void Destroy() = 0;
 
-    virtual IWorker* CreateWorker() = 0;
+    virtual IWorker* CreateWorker(const WorkerSettings& workerSettings) = 0;
 };
 
 mediasoup::IMediasoup* CreateMediasoup();

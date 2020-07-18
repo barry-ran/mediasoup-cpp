@@ -3,7 +3,7 @@
 namespace mediasoup
 {
 
-Worker::Worker() {
+Worker::Worker(const WorkerSettings& workerSettings) {
 
 }
 

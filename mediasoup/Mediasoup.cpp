@@ -120,12 +120,26 @@ void Mediasoup::Destroy()  {
     MS_lOGGERI("wait work thread quit");
     uv_thread_join(&m_workThread);
     m_workThreadCreated = false;
+
+
+	// clear works
+	for (const auto& it : m_works) {
+		if (!it) {
+			continue;
+		}
+		delete it;
+	}
+
     MS_lOGGERI("work thread quit");
 }
 
-IWorker* Mediasoup::CreateWorker()  {
+IWorker* Mediasoup::CreateWorker(const WorkerSettings& workerSettings)  {
     MS_lOGGERF();
-    return new Worker();
+	IWorker* work = new Worker(workerSettings);
+	m_works.push_back(work);
+
+    // todo observer?
+    return work;
 }
 
 void Mediasoup::WorkerFun() {

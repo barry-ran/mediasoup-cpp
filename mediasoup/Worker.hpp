@@ -6,7 +6,7 @@ namespace mediasoup
 
 class Worker : public IWorker {
 public:
-    Worker();
+    Worker(const WorkerSettings& workerSettings);
     virtual ~Worker();
 };
 

@@ -1,4 +1,6 @@
 #pragma once
+#include <vector>
+
 #include "IMediasoup.hpp"
 #include "common/Singleton.hpp"
 #include "uv.h"
@@ -14,7 +16,7 @@ public:
     virtual void Test() override;
 	virtual bool Init() override;
     virtual void Destroy() override;
-    virtual IWorker* CreateWorker() override;
+    virtual IWorker* CreateWorker(const WorkerSettings& workerSettings) override;
 
 public:
     void WorkerFun();
@@ -24,6 +26,8 @@ private:
     uv_thread_t m_workThread;
     bool m_workThreadCreated = false;
     uv_async_t m_async = {};
+
+	std::vector<IWorker*> m_works;
     
 };
 
