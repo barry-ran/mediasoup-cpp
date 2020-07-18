@@ -88,7 +88,7 @@ void StaticAsync(uv_async_t *handle) {
 }
 
 bool MediasoupEngine::Init() {
-    if (nullptr != m_workThread) {
+    if (m_workThreadCreated) {
         MS_lOGGERI("already Init");
         return true;
     }
@@ -98,12 +98,14 @@ bool MediasoupEngine::Init() {
         MS_lOGGERE("uv_thread_create failed {}", ret);
         return false;
     }
+
+    m_workThreadCreated = true;
     
 	return true;
 }
 
 void MediasoupEngine::Destroy()  {
-    if (nullptr == m_workThread) {
+    if (!m_workThreadCreated) {
         MS_lOGGERI("need Init first");
         return;
     }
@@ -113,7 +115,7 @@ void MediasoupEngine::Destroy()  {
 
     MS_lOGGERI("wait work thread quit");
     uv_thread_join(&m_workThread);
-    m_workThread = nullptr;
+    m_workThreadCreated = false;
     MS_lOGGERI("work thread quit");
 }
 
