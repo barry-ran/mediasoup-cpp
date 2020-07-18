@@ -124,11 +124,14 @@ IWorker* MediasoupEngine::CreateWorker()  {
 void MediasoupEngine::WorkerFun() {
     MS_lOGGERI("WorkerFun begine");
 
-    uv_loop_t* loop = uv_default_loop();
+    uv_loop_t* loop = new uv_loop_t;
     if (nullptr == loop) {
         MS_lOGGERE("create loop failed");
         return;
     }
+
+    uv_loop_init(loop);
+    
     // save this
     loop->data = static_cast<void*>(this);
 
@@ -138,6 +141,10 @@ void MediasoupEngine::WorkerFun() {
     uv_run(loop, UV_RUN_DEFAULT);
     
     uv_loop_close(loop);
+
+    delete loop;
+    loop = nullptr;
+
     MS_lOGGERI("WorkerFun end");
 }
 
