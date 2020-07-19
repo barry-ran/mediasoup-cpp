@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include "IMediasoup.hpp"
+#include "IWorker.hpp"
 
 int main(int argc, char *argv[])
 {   
@@ -10,8 +11,11 @@ int main(int argc, char *argv[])
     mediasoup->Test();
 	mediasoup::RtpCapabilities rtpCapabilities = mediasoup->GetSupportedRtpCapabilities();
 	for (const auto& item : rtpCapabilities.headerExtensions) {
-		std::cout << "headerExtensions.uri:" << item.uri << std::endl;
+		//std::cout << "headerExtensions.uri:" << item.uri << std::endl;
 	}
+
+	mediasoup::WorkerSettings ws;
+	mediasoup::IWorker* worker = mediasoup->CreateWorker(ws);
 
     getchar();
 
