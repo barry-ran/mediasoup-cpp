@@ -6,7 +6,7 @@ project(${PROJECT_NAME})
 set(mediasoup_headers
   common/CommonObserver.hpp
   util/Process.hpp
-  Logger.hpp
+  util/Logger.hpp
   IMediasoup.hpp
   Mediasoup.hpp
   EventEmitter.hpp
@@ -19,7 +19,7 @@ set(mediasoup_headers
 
 set(mediasoup_sources
   util/Process.cpp
-  Logger.cpp
+  util/Logger.cpp
   Mediasoup.cpp
   EventEmitter.cpp
   Worker.cpp
