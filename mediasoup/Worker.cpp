@@ -2,6 +2,7 @@
 #include "Worker.hpp"
 #include "uv.h"
 #include "Logger.hpp"
+#include "Process.hpp"
 
 namespace mediasoup
 {
@@ -26,6 +27,12 @@ Worker::~Worker() {
 	UnregisterObserver();
 }
 
+bool Worker::Init()
+{
+	MS_lOGGERF();
+	return true;
+}
+
 void Worker::getWorkBinPath() {
 	MS_lOGGERF();
 
@@ -33,20 +40,13 @@ void Worker::getWorkBinPath() {
 		return;
 	}
 
-	char workerBinPath[MAX_PATH] = { 0 };
-	size_t workerBinPathLen = MAX_PATH;
-	uv_os_getenv("MEDIASOUP_WORKER_BIN", workerBinPath, &workerBinPathLen);
-
-	if (0 != strlen(workerBinPath)) {
+	std::string workerBinPath = Process::GetInstance().Environ("MEDIASOUP_WORKER_BIN");
+	if (!workerBinPath.empty()) {
 		s_workerBin = workerBinPath;
 		return;
 	}
 
-	char exePath[MAX_PATH] = { 0 };
-	size_t exePathLen = MAX_PATH;
-	uv_exepath(exePath, &exePathLen);
-
-	std::string strexePath = exePath;
+	std::string strexePath = Process::GetInstance().ExePath();
 
 	// replace all '\' with '/'
 	while (true) {

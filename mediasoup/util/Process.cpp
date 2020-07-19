@@ -1,0 +1,46 @@
+
+#include "Process.hpp"
+
+namespace mediasoup
+{
+
+Process::Process() {
+	int ret = uv_os_environ(&m_envItem, &m_envCount);
+	if (0 != ret) {
+		return;
+	}
+
+	for (int i = 0; i < m_envCount; i++) {
+		m_mapEnvs[m_envItem[i].name] = m_envItem[i].value;
+	}
+}
+
+Process::~Process() {
+	if (m_envItem) {
+		uv_os_free_environ(m_envItem, m_envCount);
+		m_envItem = nullptr;
+		m_envCount = 0;
+	}
+	m_mapEnvs.clear();
+}
+
+const std::string& Process::Environ(const std::string& name) {
+	if (m_mapEnvs.find(name) == m_mapEnvs.end()) {
+		return m_emptyEnv;
+	}
+    
+	return m_mapEnvs[name];
+}
+
+const std::string& Process::ExePath() {
+	if (m_exePath.empty()) {
+		char exePath[MAX_PATH] = { 0 };
+		size_t exePathLen = MAX_PATH;
+		uv_exepath(exePath, &exePathLen);
+		m_exePath = exePath;
+	}
+
+	return m_exePath;
+}
+
+}

@@ -5,6 +5,7 @@ project(${PROJECT_NAME})
 
 set(mediasoup_headers
   common/CommonObserver.hpp
+  util/Process.hpp
   Logger.hpp
   IMediasoup.hpp
   Mediasoup.hpp
@@ -15,7 +16,9 @@ set(mediasoup_headers
   RtpParameters.hpp
   SupportedRtpCapabilities.hpp
 )
+
 set(mediasoup_sources
+  util/Process.cpp
   Logger.cpp
   Mediasoup.cpp
   EventEmitter.cpp
@@ -30,8 +33,13 @@ add_library(mediasoup
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
-    spdlog
-    uv
+  spdlog
+  uv
+)
+
+target_include_directories(${PROJECT_NAME} PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/common
+  ${CMAKE_CURRENT_SOURCE_DIR}/util
 )
 
 target_include_directories(${PROJECT_NAME}

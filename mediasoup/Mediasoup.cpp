@@ -136,9 +136,14 @@ void Mediasoup::Destroy()  {
 
 IWorker* Mediasoup::CreateWorker(IWorker::Observer* workerObserver, const WorkerSettings& workerSettings)  {
     MS_lOGGERF();
-	IWorker* work = new Worker(workerObserver, workerSettings);
-	m_works.push_back(work);
+	Worker* work = new Worker(workerObserver, workerSettings);
+	if (!work->Init()) {
+		MS_lOGGERE("worker init failed");
+		delete work;
+		return nullptr;
+	}
 
+	m_works.push_back(work);
     return work;
 }
 

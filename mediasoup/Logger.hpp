@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common/Singleton.hpp"
+#include "Singleton.hpp"
 #include "spdlog/spdlog.h"
 
 namespace mediasoup
