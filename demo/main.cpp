@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
 	}
 
 	Worker myWorker;
-
+	getchar();
 	mediasoup::WorkerSettings ws;
 	mediasoup::IWorker* worker = mediasoup->CreateWorker(&myWorker, ws);
 

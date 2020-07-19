@@ -122,7 +122,6 @@ void Mediasoup::Destroy()  {
     uv_thread_join(&m_workThread);
     m_workThreadCreated = false;
 
-
 	// clear works
 	for (const auto& it : m_works) {
 		if (!it) {
@@ -152,30 +151,34 @@ RtpCapabilities Mediasoup::GetSupportedRtpCapabilities() {
 	return supportedRtpCapabilities;
 }
 
+uv_loop_t* Mediasoup::GetLoop()
+{
+	return m_loop;
+}
+
 void Mediasoup::WorkerFun() {
     MS_lOGGERF();
     MS_lOGGERI("WorkerFun begine");
 
-    uv_loop_t* loop = new uv_loop_t;
-    if (nullptr == loop) {
+	m_loop = new uv_loop_t;
+    if (nullptr == m_loop) {
         MS_lOGGERE("create loop failed");
         return;
     }
 
-    uv_loop_init(loop);
+    uv_loop_init(m_loop);
     
     // save this
-    loop->data = static_cast<void*>(this);
+	m_loop->data = static_cast<void*>(this);
 
-    uv_async_init(loop, &m_async, StaticAsync);
+    uv_async_init(m_loop, &m_async, StaticAsync);
 
     MS_lOGGERI("uv_run");
-    uv_run(loop, UV_RUN_DEFAULT);
-    
-    uv_loop_close(loop);
+    uv_run(m_loop, UV_RUN_DEFAULT);
 
-    delete loop;
-    loop = nullptr;
+    uv_loop_close(m_loop);
+    delete m_loop;
+	m_loop = nullptr;
 
     MS_lOGGERI("WorkerFun end");
 }

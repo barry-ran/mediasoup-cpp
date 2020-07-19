@@ -19,6 +19,8 @@ public:
     virtual IWorker* CreateWorker(IWorker::Observer* workerObserver, const WorkerSettings& workerSettings) override;
 	virtual RtpCapabilities GetSupportedRtpCapabilities() override;
 
+	uv_loop_t* GetLoop();
+
 public:
     void WorkerFun();
     void Async(uv_async_t* handle);
@@ -26,7 +28,8 @@ public:
 private:
     uv_thread_t m_workThread;
     bool m_workThreadCreated = false;
-    uv_async_t m_async = {};
+	uv_loop_t* m_loop = nullptr;
+    uv_async_t m_async;
 	
 	std::vector<IWorker*> m_works;
     

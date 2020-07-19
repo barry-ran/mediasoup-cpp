@@ -1,6 +1,7 @@
 #pragma once
 #include "IWorker.hpp"
 #include "RtpParameters.hpp"
+#include "version.hpp"
 
 namespace mediasoup
 {

@@ -17,7 +17,7 @@ struct WorkerSettings {
 	 * Log tags for debugging. Check the list of available tags in Debugging
 	 * documentation.
 	 */
-	std::string logTags;
+	std::vector<std::string> logTags;
  
 	/**
 	 * Minimun RTC port for ICE, DTLS, RTP, etc. Default 10000.
