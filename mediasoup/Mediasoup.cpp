@@ -134,12 +134,11 @@ void Mediasoup::Destroy()  {
     MS_lOGGERI("work thread quit");
 }
 
-IWorker* Mediasoup::CreateWorker(const WorkerSettings& workerSettings)  {
+IWorker* Mediasoup::CreateWorker(IWorker::Observer* workerObserver, const WorkerSettings& workerSettings)  {
     MS_lOGGERF();
-	IWorker* work = new Worker(workerSettings);
+	IWorker* work = new Worker(workerObserver, workerSettings);
 	m_works.push_back(work);
 
-    // todo observer?
     return work;
 }
 

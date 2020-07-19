@@ -11,14 +11,19 @@ namespace mediasoup
 // Otherwise use the Release binary.
 std::string Worker::s_workerBin = "";
 
-Worker::Worker(const WorkerSettings& workerSettings) {
+Worker::Worker(IWorker::Observer* obs, const WorkerSettings& workerSettings) {
 	MS_lOGGERF();
 	getWorkBinPath();
 	MS_lOGGERI("mediasoup-worker path:{}", s_workerBin);
+
+	RegisterObserver(obs);
+	
+	NotifyObserver(std::bind(&IWorker::Observer::OnSuccess, std::placeholders::_1));
 }
 
 Worker::~Worker() {
 	MS_lOGGERF();
+	UnregisterObserver();
 }
 
 void Worker::getWorkBinPath() {

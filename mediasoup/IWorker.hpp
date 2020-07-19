@@ -157,6 +157,11 @@ struct WorkerResourceUsage {
 class IWorker {
 public:
 	virtual ~IWorker() {}
+
+	class Observer {
+	public:
+		virtual void OnSuccess() = 0;
+	};
 };
 
 }

@@ -4,6 +4,13 @@
 #include "IMediasoup.hpp"
 #include "IWorker.hpp"
 
+class Worker : public mediasoup::IWorker::Observer {
+public:
+	Worker() {}
+	void OnSuccess() override {
+		std::cout << "++++++:OnSuccess" << std::endl;
+	}
+};
 int main(int argc, char *argv[])
 {   
     mediasoup::IMediasoup* mediasoup = mediasoup::CreateMediasoup();
@@ -14,8 +21,10 @@ int main(int argc, char *argv[])
 		//std::cout << "headerExtensions.uri:" << item.uri << std::endl;
 	}
 
+	Worker myWorker;
+
 	mediasoup::WorkerSettings ws;
-	mediasoup::IWorker* worker = mediasoup->CreateWorker(ws);
+	mediasoup::IWorker* worker = mediasoup->CreateWorker(&myWorker, ws);
 
     getchar();
 

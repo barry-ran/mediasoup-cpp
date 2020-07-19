@@ -4,6 +4,7 @@ set(PROJECT_NAME "mediasoup")
 project(${PROJECT_NAME})
 
 set(mediasoup_headers
+  common/CommonObserver.hpp
   Logger.hpp
   IMediasoup.hpp
   Mediasoup.hpp

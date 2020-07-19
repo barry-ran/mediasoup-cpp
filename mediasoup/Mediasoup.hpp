@@ -16,7 +16,7 @@ public:
     virtual void Test() override;
 	virtual bool Init() override;
     virtual void Destroy() override;
-    virtual IWorker* CreateWorker(const WorkerSettings& workerSettings) override;
+    virtual IWorker* CreateWorker(IWorker::Observer* workerObserver, const WorkerSettings& workerSettings) override;
 	virtual RtpCapabilities GetSupportedRtpCapabilities() override;
 
 public:
