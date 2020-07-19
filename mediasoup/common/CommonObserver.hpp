@@ -1,6 +1,4 @@
 #pragma once
-#include <memory>
-#include <algorithm>
 
 namespace mediasoup
 {
@@ -9,11 +7,11 @@ template<typename ObserverType>
 class CommonObserver {
 public:
     void RegisterObserver(ObserverType* obs) {
-        m_observer.reset(obs);
+        m_observer = obs;
     }
 
     void UnregisterObserver() {
-        m_observer.reset(nullptr);
+        m_observer = nullptr;
     }
     
     template <typename FuncType>
@@ -25,7 +23,7 @@ public:
     }
 
 private:
-    std::unique_ptr<ObserverType> m_observer;
+    ObserverType* m_observer;
 };
 
 }
