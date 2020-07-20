@@ -9,8 +9,7 @@ set(mediasoup_headers
   util/Process.hpp
   util/Logger.hpp
   IMediasoup.hpp
-  Mediasoup.hpp
-  EventEmitter.hpp
+  Mediasoup.hpp  
   Promise.hpp
   IWorker.hpp
   Worker.hpp
@@ -21,8 +20,7 @@ set(mediasoup_headers
 set(mediasoup_sources
   util/Process.cpp
   util/Logger.cpp
-  Mediasoup.cpp
-  EventEmitter.cpp
+  Mediasoup.cpp  
   Worker.cpp
   SupportedRtpCapabilities.cpp
 )
