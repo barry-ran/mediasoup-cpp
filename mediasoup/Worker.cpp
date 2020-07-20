@@ -3,6 +3,7 @@
 #include "Logger.hpp"
 #include "Process.hpp"
 #include "Mediasoup.hpp"
+#include "AutoRelease.hpp"
 
 namespace mediasoup
 {
@@ -107,7 +108,8 @@ bool Worker::Init() {
 
 	MS_lOGGERD("spawning worker process : {} {}", spawnBin, strSpawnArgs);
 
-	char** args = new char*[spawnArgs.size()];
+	char** args = new char*[spawnArgs.size() + 1];
+	AutoRelease releaeArgs([&args]() { delete[] args; });
 	for (int i = 0; i < spawnArgs.size(); i++) {
 		args[i] = const_cast<char*>(spawnArgs[i].c_str());
 	}
