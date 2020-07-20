@@ -30,6 +30,12 @@ private:
 	char m_stdErrBuf[1024] = { 0 };
 	int m_stdErrReadLen = 0;
 
+	uv_pipe_t m_producer;
+	uv_pipe_t m_consumer;
+	char m_consumerBuf[1024] = { 0 };
+	int m_consumerReadLen = 0;
+
+
 	int m_pid = -1;
 };
 

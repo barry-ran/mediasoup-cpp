@@ -123,8 +123,12 @@ bool Worker::Init() {
 	env[1] = nullptr;
 	options.env = env;
 
+	// ipc: whether this pipeline passes handles between different processes
 	uv_pipe_init(Mediasoup::GetInstance().GetLoop(), &m_childStdOut, 0);
 	uv_pipe_init(Mediasoup::GetInstance().GetLoop(), &m_childStdErr, 0);
+
+	uv_pipe_init(Mediasoup::GetInstance().GetLoop(), &m_producer, 0);
+	uv_pipe_init(Mediasoup::GetInstance().GetLoop(), &m_consumer, 0);	
 
 	// options
 	options.flags = UV_PROCESS_DETACHED;
@@ -137,14 +141,17 @@ bool Worker::Init() {
 	// fd 4 (channel) : Consumer Channel fd.
 	uv_stdio_container_t childStdio[5];
 	childStdio[0].flags = UV_IGNORE;
+	// UV_WRITABLE_PIPE/UV_READABLE_PIPE is relative to the child process
 	childStdio[1].flags = (uv_stdio_flags)(UV_CREATE_PIPE | UV_WRITABLE_PIPE);
 	childStdio[1].data.stream = (uv_stream_t*)&m_childStdOut;
 	childStdio[2].flags = (uv_stdio_flags)(UV_CREATE_PIPE | UV_WRITABLE_PIPE);
 	childStdio[2].data.stream = (uv_stream_t*)&m_childStdErr;
-	childStdio[3].flags = (uv_stdio_flags)(UV_CREATE_PIPE | UV_WRITABLE_PIPE);
-	childStdio[4].flags = (uv_stdio_flags)(UV_CREATE_PIPE | UV_READABLE_PIPE);
+	childStdio[3].flags = (uv_stdio_flags)(UV_CREATE_PIPE | UV_READABLE_PIPE);
+	childStdio[3].data.stream = (uv_stream_t*)&m_producer;
+	childStdio[4].flags = (uv_stdio_flags)(UV_CREATE_PIPE | UV_WRITABLE_PIPE);
+	childStdio[4].data.stream = (uv_stream_t*)&m_consumer;
 	options.stdio = childStdio;
-	options.stdio_count = 3;
+	options.stdio_count = 5;
 	
 	int ret = uv_spawn(Mediasoup::GetInstance().GetLoop(), &m_child, &options);
 	MS_ASSERTLOGE_R(0 == ret, false, "uv_spawn failed:{}", uv_strerror(ret));
@@ -155,6 +162,10 @@ bool Worker::Init() {
 
 	m_childStdErr.data = this;
 	ret = uv_read_start((uv_stream_t*)&m_childStdErr, StaticOnAllocCB, StaticOnReadCB);
+	MS_ASSERTLOGE_R(0 == ret, false, "uv_read_start failed:{}", uv_strerror(ret));
+
+	m_consumer.data = this;
+	ret = uv_read_start((uv_stream_t*)&m_consumer, StaticOnAllocCB, StaticOnReadCB);
 	MS_ASSERTLOGE_R(0 == ret, false, "uv_read_start failed:{}", uv_strerror(ret));
 
 	m_pid = m_child.pid;
@@ -175,6 +186,12 @@ void Worker::OnAllocCB(uv_handle_t* handle, size_t suggestedSize, uv_buf_t* buf)
 		buf->len = suggestedSize;
 		m_stdErrReadLen = suggestedSize;
 	}
+
+	if (handle == (uv_handle_t*)&m_consumer) {
+		buf->base = m_consumerBuf;
+		buf->len = suggestedSize;
+		m_consumerReadLen = suggestedSize;
+	}	
 }
 
 void Worker::OnReadCB(uv_stream_t* stream, ssize_t nRead, const uv_buf_t* buf)
@@ -188,6 +205,11 @@ void Worker::OnReadCB(uv_stream_t* stream, ssize_t nRead, const uv_buf_t* buf)
 		m_stdErrBuf[nRead] = 0;
 		MS_lOGGERD("OnReadCB:stderr:{}", m_stdErrBuf);
 	}
+
+	if (stream == (uv_stream_t*)&m_consumer) {
+		m_consumerBuf[nRead] = 0;
+		MS_lOGGERD("OnReadCB:consumer:{}", m_consumerBuf);
+	}	
 }
 
 void Worker::getWorkBinPath() {
