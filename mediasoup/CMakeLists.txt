@@ -5,6 +5,7 @@ project(${PROJECT_NAME})
 
 set(mediasoup_headers
   version.hpp
+  common/AutoRelease.hpp
   common/CommonObserver.hpp
   util/Process.hpp
   util/Logger.hpp
