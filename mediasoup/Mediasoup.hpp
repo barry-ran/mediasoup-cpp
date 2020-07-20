@@ -26,8 +26,7 @@ public:
     void Async(uv_async_t* handle);
 
 private:
-    uv_thread_t m_workThread;
-    bool m_workThreadCreated = false;
+    uv_thread_t m_workThread;    
 	uv_loop_t* m_loop = nullptr;
     uv_async_t m_async;
 	

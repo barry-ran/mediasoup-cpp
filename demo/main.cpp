@@ -21,8 +21,7 @@ int main(int argc, char *argv[])
 		//std::cout << "headerExtensions.uri:" << item.uri << std::endl;
 	}
 
-	Worker myWorker;
-	getchar();
+	Worker myWorker;	
 	mediasoup::WorkerSettings ws;
 	mediasoup::IWorker* worker = mediasoup->CreateWorker(&myWorker, ws);
 

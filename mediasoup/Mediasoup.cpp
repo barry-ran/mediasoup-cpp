@@ -82,35 +82,42 @@ void StaticAsync(uv_async_t* handle) {
 
 bool Mediasoup::Init() {
     MS_lOGGERF();
-    if (m_workThreadCreated) {
-        MS_lOGGERI("already Init");
-        return true;
-    }
+	MS_ASSERTLOGI_R(!m_loop, true, "already Init");
 
+	m_loop = new uv_loop_t;
+	MS_ASSERTLOGE_R(m_loop, false, "create loop failed");
+
+	uv_loop_init(m_loop);
+
+	// save this
+	m_loop->data = static_cast<void*>(this);
+
+	uv_async_init(m_loop, &m_async, StaticAsync);
+
+	// run loop
     int ret = uv_thread_create(&m_workThread, StaticWorkerFun, this);
     if (0 != ret) {
-        MS_lOGGERE("uv_thread_create failed {}", ret);
+        MS_lOGGERE("uv_thread_create failed:{}", uv_strerror(ret));
+		Destroy();
         return false;
-    }
-
-    m_workThreadCreated = true;
+    }    
     
 	return true;
 }
 
 void Mediasoup::Destroy()  {
     MS_lOGGERF();
-    if (!m_workThreadCreated) {
-        MS_lOGGERI("need Init first");
-        return;
-    }
+	MS_ASSERTLOGI_RV(m_loop, "need Init first");
 
     // notify quit
     uv_async_send(&m_async);
 
     MS_lOGGERI("wait work thread quit");
-    uv_thread_join(&m_workThread);
-    m_workThreadCreated = false;
+    uv_thread_join(&m_workThread);    
+
+	uv_loop_close(m_loop);
+	delete m_loop;
+	m_loop = nullptr;
 
 	// clear works
 	for (const auto& it : m_works) {
@@ -146,29 +153,11 @@ uv_loop_t* Mediasoup::GetLoop()
 	return m_loop;
 }
 
-void Mediasoup::WorkerFun() {
-    MS_lOGGERF();
+void Mediasoup::WorkerFun() {    
     MS_lOGGERI("WorkerFun begine");
-
-	m_loop = new uv_loop_t;
-    if (nullptr == m_loop) {
-        MS_lOGGERE("create loop failed");
-        return;
-    }
-
-    uv_loop_init(m_loop);
-    
-    // save this
-	m_loop->data = static_cast<void*>(this);
-
-    uv_async_init(m_loop, &m_async, StaticAsync);
-
+	
     MS_lOGGERI("uv_run");
-    uv_run(m_loop, UV_RUN_DEFAULT);
-
-    uv_loop_close(m_loop);
-    delete m_loop;
-	m_loop = nullptr;
+    uv_run(m_loop, UV_RUN_DEFAULT);    
 
     MS_lOGGERI("WorkerFun end");
 }
