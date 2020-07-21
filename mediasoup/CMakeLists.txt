@@ -4,7 +4,7 @@ set(PROJECT_NAME "mediasoup")
 project(${PROJECT_NAME})
 
 set(mediasoup_headers
-  version.hpp
+  Version.hpp
   common/AutoRelease.hpp
   common/CommonObserver.hpp
   util/Process.hpp
