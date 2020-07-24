@@ -39,12 +39,14 @@ add_library(mediasoup
 target_link_libraries(${PROJECT_NAME} PRIVATE
   spdlog
   uv
+  netstring
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/common
   ${CMAKE_CURRENT_SOURCE_DIR}/util
-  ${CMAKE_CURRENT_SOURCE_DIR}/uv  
+  ${CMAKE_CURRENT_SOURCE_DIR}/uv
+  ${CMAKE_CURRENT_SOURCE_DIR}/../deps/json/single_include/nlohmann
 )
 
 target_include_directories(${PROJECT_NAME}

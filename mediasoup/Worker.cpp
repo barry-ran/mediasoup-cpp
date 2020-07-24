@@ -51,8 +51,6 @@ Worker::Worker(IWorker::Observer* obs, const WorkerSettings& workerSettings) {
 	MS_lOGI("mediasoup-worker path:{}", s_workerBin);
 
 	RegisterObserver(obs);
-	
-	NotifyObserver(std::bind(&IWorker::Observer::OnSuccess, std::placeholders::_1));
 }
 
 Worker::~Worker() {
@@ -191,8 +189,13 @@ void Worker::OnClose(UVPipeWrapper* pipe) {
 
 }
 
-void Worker::OnMsg(std::string targetId, std::string event, std::string data)
-{
+void Worker::OnRunning() {
+	m_spawnDone = true;
+	NotifyObserver(std::bind(&IWorker::Observer::OnSuccess, std::placeholders::_1));
+}
+
+void Worker::OnMsg(std::string targetId, std::string event, std::string data) {
+
 }
 
 void Worker::getWorkBinPath() {

@@ -24,6 +24,7 @@ public:
 	void OnClose(UVPipeWrapper* pipe) override;
 
 	// ChannelObserver
+	void OnRunning();
 	void OnMsg(std::string targetId, std::string event, std::string data) override;
 
 protected:
