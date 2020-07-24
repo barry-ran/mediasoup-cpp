@@ -2,18 +2,22 @@
 #include "IWorker.hpp"
 #include "CommonObserver.hpp"
 #include "uv.h"
+#include "UVPipeWrapper.hpp"
 
 namespace mediasoup
 {
-class Worker : public IWorker, public CommonObserver<IWorker::Observer> {
+class Worker : public IWorker,
+	public CommonObserver<IWorker::Observer>,
+	public UVPipeObserver {
 public:
     Worker(IWorker::Observer* obs, const WorkerSettings& workerSettings);
     virtual ~Worker();
 
 	bool Init();
 
-	void OnAllocCB(uv_handle_t* handle, size_t suggestedSize, uv_buf_t* buf);
-	void OnReadCB(uv_stream_t* stream, ssize_t nRead, const uv_buf_t* buf);
+	// UVPipeObserver
+	void OnRead(uint8_t* data, size_t len) override;
+	void OnClose() override;
 
 protected:
 	void getWorkBinPath();
@@ -23,18 +27,8 @@ private:
 	WorkerSettings m_settings;
 	uv_process_t m_child;
 
-	uv_pipe_t m_childStdOut;
-	char m_stdOutBuf[1024] = { 0 };
-	int m_stdOutReadLen = 0;
-	uv_pipe_t m_childStdErr;
-	char m_stdErrBuf[1024] = { 0 };
-	int m_stdErrReadLen = 0;
-
-	uv_pipe_t m_producer;
-	uv_pipe_t m_consumer;
-	char m_consumerBuf[1024] = { 0 };
-	int m_consumerReadLen = 0;
-
+	std::unique_ptr<UVPipeWrapper> m_childStdOut = nullptr;
+	std::unique_ptr<UVPipeWrapper> m_childStdErr = nullptr;
 
 	int m_pid = -1;
 };

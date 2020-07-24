@@ -9,6 +9,7 @@ set(mediasoup_headers
   common/CommonObserver.hpp
   util/Process.hpp
   util/Logger.hpp
+  uv/UVPipeWrapper.hpp
   IMediasoup.hpp
   Mediasoup.hpp  
   Promise.hpp
@@ -21,6 +22,7 @@ set(mediasoup_headers
 set(mediasoup_sources
   util/Process.cpp
   util/Logger.cpp
+  uv/UVPipeWrapper.cpp
   Mediasoup.cpp  
   Worker.cpp
   SupportedRtpCapabilities.cpp
@@ -40,6 +42,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 target_include_directories(${PROJECT_NAME} PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/common
   ${CMAKE_CURRENT_SOURCE_DIR}/util
+  ${CMAKE_CURRENT_SOURCE_DIR}/uv  
 )
 
 target_include_directories(${PROJECT_NAME}
