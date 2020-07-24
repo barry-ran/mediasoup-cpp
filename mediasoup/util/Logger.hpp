@@ -37,56 +37,56 @@ public:
     }
 };
 
-#define MS_lOGGERD(...) mediasoup::Logger::GetInstance().debug(__VA_ARGS__)
-#define MS_lOGGERI(...) mediasoup::Logger::GetInstance().info(__VA_ARGS__)
-#define MS_lOGGERW(...) mediasoup::Logger::GetInstance().warn(__VA_ARGS__)
-#define MS_lOGGERE(...) mediasoup::Logger::GetInstance().error(__VA_ARGS__)
-#define MS_lOGGERF() mediasoup::Logger::GetInstance().debug(SPDLOG_FUNCTION)
+#define MS_lOGD(...) mediasoup::Logger::GetInstance().debug(__VA_ARGS__)
+#define MS_lOGI(...) mediasoup::Logger::GetInstance().info(__VA_ARGS__)
+#define MS_lOGW(...) mediasoup::Logger::GetInstance().warn(__VA_ARGS__)
+#define MS_lOGE(...) mediasoup::Logger::GetInstance().error(__VA_ARGS__)
+#define MS_lOGF() mediasoup::Logger::GetInstance().debug(SPDLOG_FUNCTION)
 
-#define MS_ASSERTLOGI_R(x, r, ...) \
+#define MS_ASSERT_RV_LOGI(x, r, ...) \
   do {                           \
     if (!(x)) {                  \
-      MS_lOGGERI(__VA_ARGS__);   \
+      MS_lOGI(__VA_ARGS__);   \
       return (r);                \
     }                            \
   } while (0);
 
-#define MS_ASSERTLOGW_R(x, r, ...) \
+#define MS_ASSERT_RV_LOGW(x, r, ...) \
   do {                           \
     if (!(x)) {                  \
-      MS_lOGGERW(__VA_ARGS__);   \
+      MS_lOGW(__VA_ARGS__);   \
       return (r);                \
     }                            \
   } while (0);
 
-#define MS_ASSERTLOGE_R(x, r, ...) \
+#define MS_ASSERT_RV_LOGE(x, r, ...) \
   do {                           \
     if (!(x)) {                  \
-      MS_lOGGERE(__VA_ARGS__);   \
+      MS_lOGE(__VA_ARGS__);   \
       return (r);                \
     }                            \
   } while (0);
 
-#define MS_ASSERTLOGI_RV(x, ...) \
+#define MS_ASSERT_R_LOGI(x, ...) \
   do {                           \
     if (!(x)) {                  \
-      MS_lOGGERI(__VA_ARGS__);   \
+      MS_lOGI(__VA_ARGS__);   \
       return;                    \
     }                            \
   } while (0);
 
-#define MS_ASSERTLOGW_RV(x, ...) \
+#define MS_ASSERT_R_LOGW(x, ...) \
   do {                           \
     if (!(x)) {                  \
-      MS_lOGGERW(__VA_ARGS__);   \
+      MS_lOGW(__VA_ARGS__);   \
       return;                    \
     }                            \
   } while (0);
 
-#define MS_ASSERTLOGE_RV(x, ...) \
+#define MS_ASSERT_R_LOGE(x, ...) \
   do {                           \
     if (!(x)) {                  \
-      MS_lOGGERE(__VA_ARGS__);   \
+      MS_lOGE(__VA_ARGS__);   \
       return;                    \
     }                            \
   } while (0);

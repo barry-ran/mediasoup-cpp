@@ -38,11 +38,11 @@ std::vector<std::string> StringSplit(const std::string& s, const std::string& de
 }
 
 Worker::Worker(IWorker::Observer* obs, const WorkerSettings& workerSettings) {
-	MS_lOGGERF();
+	MS_lOGF();
 	m_settings = workerSettings;
 
 	getWorkBinPath();
-	MS_lOGGERI("mediasoup-worker path:{}", s_workerBin);
+	MS_lOGI("mediasoup-worker path:{}", s_workerBin);
 
 	RegisterObserver(obs);
 	
@@ -50,12 +50,12 @@ Worker::Worker(IWorker::Observer* obs, const WorkerSettings& workerSettings) {
 }
 
 Worker::~Worker() {
-	MS_lOGGERF();
+	MS_lOGF();
 	UnregisterObserver();
 }
 
 bool Worker::Init() {
-	MS_lOGGERF();
+	MS_lOGF();
 
 	std::string spawnBin = s_workerBin;
 	std::vector<std::string> spawnArgs;
@@ -98,7 +98,7 @@ bool Worker::Init() {
 		strSpawnArgs += arg + " ";
 	}
 
-	MS_lOGGERD("spawning worker process : {} {}", spawnBin, strSpawnArgs);
+	MS_lOGD("spawning worker process : {} {}", spawnBin, strSpawnArgs);
 
 	char** args = new char*[spawnArgs.size() + 1];
 	AutoRelease releaeArgs([&args]() { delete[] args; });
@@ -149,7 +149,7 @@ bool Worker::Init() {
 	options.stdio_count = 3;
 	
 	int ret = uv_spawn(Mediasoup::GetInstance().GetLoop(), &m_child, &options);
-	MS_ASSERTLOGE_R(0 == ret, false, "uv_spawn failed:{}", uv_strerror(ret));
+	MS_ASSERT_RV_LOGE(0 == ret, false, "uv_spawn failed:{}", uv_strerror(ret));
 
 	m_childStdOut->Start();
 	m_childStdErr->Start();
@@ -161,7 +161,7 @@ bool Worker::Init() {
 
 void Worker::OnRead(uint8_t* data, size_t len) {
 	std::string s((char*)data, len);
-	MS_lOGGERD("Worker::OnRead: {}", s);
+	MS_lOGD("Worker::OnRead: {}", s);
 }
 
 void Worker::OnClose() {
@@ -169,7 +169,7 @@ void Worker::OnClose() {
 }
 
 void Worker::getWorkBinPath() {
-	MS_lOGGERF();
+	MS_lOGF();
 
 	if (!s_workerBin.empty()) {
 		return;

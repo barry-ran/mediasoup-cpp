@@ -14,7 +14,7 @@ inline static void StaticOnReadCB(uv_stream_t* stream, ssize_t nRead, const uv_b
 }
 
 inline static void StaticOnClose(uv_handle_t* handle) {
-	MS_lOGGERF();
+	MS_lOGF();
 	delete handle;
 }
 
@@ -45,12 +45,12 @@ UVPipeWrapper::UVPipeWrapper(UVPipeObserver* obs, int bufferSize, UVPipeWrapper:
 	: m_bufferSize(bufferSize)
 	, m_role(role)
 {
-    MS_lOGGERF();
+    MS_lOGF();
 	RegisterObserver(obs);
 }
 
 UVPipeWrapper::~UVPipeWrapper() {
-    MS_lOGGERF();
+    MS_lOGF();
 	if (!m_closed) {
 		Close();
 	}
@@ -62,8 +62,8 @@ UVPipeWrapper::~UVPipeWrapper() {
 }
 
 bool UVPipeWrapper::Init() {
-	MS_lOGGERF();
-	MS_ASSERTLOGI_R(!m_uvHandle, true, "already init");
+	MS_lOGF();
+	MS_ASSERT_RV_LOGI(!m_uvHandle, true, "already init");
 
 	m_uvHandle = new uv_pipe_t;
 	m_uvHandle->data = static_cast<void*>(this);
@@ -75,15 +75,15 @@ bool UVPipeWrapper::Init() {
 		delete m_uvHandle;
 		m_uvHandle = nullptr;
 
-		MS_lOGGERE("uv_pipe_init() failed: {}", uv_strerror(ret));
+		MS_lOGE("uv_pipe_init() failed: {}", uv_strerror(ret));
 		return false;
 	}
 	return true;
 }
 
 bool UVPipeWrapper::Start() {
-	MS_lOGGERF();
-	MS_ASSERTLOGE_R(m_uvHandle, false, "no init");
+	MS_lOGF();
+	MS_ASSERT_RV_LOGE(m_uvHandle, false, "no init");
 	
 	if (UVPipeWrapper::Role::CONSUMER == m_role) {
 		// Start reading.
@@ -91,23 +91,23 @@ bool UVPipeWrapper::Start() {
 			static_cast<uv_alloc_cb>(StaticOnAllocCB),
 			static_cast<uv_read_cb>(StaticOnReadCB));
 
-		MS_ASSERTLOGE_R(0 == ret, false, "uv_read_start() failed: {}", uv_strerror(ret));	
+		MS_ASSERT_RV_LOGE(0 == ret, false, "uv_read_start() failed: {}", uv_strerror(ret));	
 	}
 
 	return true;
 }
 
 uv_pipe_t* UVPipeWrapper::GetPipe() const {
-	MS_lOGGERF();
+	MS_lOGF();
 
 	return m_uvHandle;
 }
 
 void UVPipeWrapper::Write(const uint8_t* data, size_t len) {
-	MS_lOGGERF();
-	MS_ASSERTLOGI_RV(m_uvHandle, "no init");
-	MS_ASSERTLOGE_RV(!m_closed, "pipi closed already");
-	MS_ASSERTLOGE_RV(len != 0, "len == 0");	
+	MS_lOGF();
+	MS_ASSERT_R_LOGI(m_uvHandle, "no init");
+	MS_ASSERT_R_LOGE(!m_closed, "pipi closed already");
+	MS_ASSERT_R_LOGE(len != 0, "len == 0");	
 
 	// First try uv_try_write(). In case it can not directly send all the given data
 	// then build a uv_req_t and use uv_write().
@@ -124,7 +124,7 @@ void UVPipeWrapper::Write(const uint8_t* data, size_t len) {
 		written = 0;
 	} else if (written < 0) {
 		// Any other error.
-		MS_lOGGERE("uv_try_write() failed, trying uv_write(): {}", uv_strerror(written));
+		MS_lOGE("uv_try_write() failed, trying uv_write(): {}", uv_strerror(written));
 
 		// Set written to 0 so pendingLen can be properly calculated.
 		written = 0;
@@ -146,7 +146,7 @@ void UVPipeWrapper::Write(const uint8_t* data, size_t len) {
 		static_cast<uv_write_cb>(StaticcOnWrite));
 
 	if (err != 0) {
-		MS_lOGGERE("uv_write() failed: {}", uv_strerror(err));		
+		MS_lOGE("uv_write() failed: {}", uv_strerror(err));		
 
 		// Delete the UvSendData struct.
 		delete writeData;
@@ -154,9 +154,9 @@ void UVPipeWrapper::Write(const uint8_t* data, size_t len) {
 }
 
 void UVPipeWrapper::Close() {
-	MS_lOGGERF();
-	MS_ASSERTLOGI_RV(m_uvHandle, "no init");
-	MS_ASSERTLOGI_RV(!m_closed, "pipe closed already");
+	MS_lOGF();
+	MS_ASSERT_R_LOGI(m_uvHandle, "no init");
+	MS_ASSERT_R_LOGI(!m_closed, "pipe closed already");
 	
 	m_closed = true;
 
@@ -168,7 +168,7 @@ void UVPipeWrapper::Close() {
 		// Don't read more.
 		ret = uv_read_stop(reinterpret_cast<uv_stream_t*>(m_uvHandle));
 
-		MS_ASSERTLOGE_RV(ret == 0, "uv_read_stop() failed: {}", uv_strerror(ret));
+		MS_ASSERT_R_LOGE(ret == 0, "uv_read_stop() failed: {}", uv_strerror(ret));
 	}
 
 	// If there is no error and the peer didn't close its pipe side then close gracefully.
@@ -179,7 +179,7 @@ void UVPipeWrapper::Close() {
 		ret = uv_shutdown(req, reinterpret_cast<uv_stream_t*>(m_uvHandle),
 			static_cast<uv_shutdown_cb>(StaticcOnShutdown));
 
-		MS_ASSERTLOGE_RV(ret == 0, "uv_shutdown() failed: {}", uv_strerror(ret));		
+		MS_ASSERT_R_LOGE(ret == 0, "uv_shutdown() failed: {}", uv_strerror(ret));		
 	} else {
 		// Otherwise directly close the socket.
 		uv_close(reinterpret_cast<uv_handle_t*>(m_uvHandle), static_cast<uv_close_cb>(StaticOnClose));
@@ -201,7 +201,7 @@ void UVPipeWrapper::OnAllocCB(uv_handle_t* handle, size_t suggestedSize, uv_buf_
 	} else {
 		buf->len = 0;
 
-		MS_lOGGERE("no available space in the buffer");
+		MS_lOGE("no available space in the buffer");
 	}
 }
 
@@ -229,7 +229,7 @@ void UVPipeWrapper::OnReadCB(uv_stream_t* stream, ssize_t nRead, const uv_buf_t*
 		NotifyObserver(std::bind(&UVPipeObserver::OnClose, std::placeholders::_1));
 	} else {
 		// Some error.
-		MS_lOGGERE("read error, closing the pipe: {}", uv_strerror(nRead));
+		MS_lOGE("read error, closing the pipe: {}", uv_strerror(nRead));
 
 		m_hasError = true;
 
@@ -242,13 +242,13 @@ void UVPipeWrapper::OnReadCB(uv_stream_t* stream, ssize_t nRead, const uv_buf_t*
 }
 
 void UVPipeWrapper::OnWriteError(int error) {
-	MS_lOGGERF();
+	MS_lOGF();
 
 	if (error != UV_EPIPE && error != UV_ENOTCONN) {
 		m_hasError = true;
 	}		
 
-	MS_lOGGERE("write error, closing the pipe: {}", uv_strerror(error));
+	MS_lOGE("write error, closing the pipe: {}", uv_strerror(error));
 
 	Close();
 
