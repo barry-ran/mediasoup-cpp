@@ -10,6 +10,12 @@ public:
 	void OnSuccess() override {
 		std::cout << "++++++:OnSuccess" << std::endl;
 	}
+	void OnFailure(std::string error) override {
+		std::cout << "++++++:OnFailure" << std::endl;
+	}
+	void OnClose() override {
+		std::cout << "++++++:OnClose" << std::endl;
+	}
 };
 int main(int argc, char *argv[])
 {   

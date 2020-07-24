@@ -5,6 +5,8 @@
 #include "Mediasoup.hpp"
 #include "AutoRelease.hpp"
 
+#include <sstream>
+
 namespace mediasoup
 {
 
@@ -37,6 +39,10 @@ std::vector<std::string> StringSplit(const std::string& s, const std::string& de
 	return elems;
 }
 
+void StaticExitCB(uv_process_t* process, int64_t exitStatus, int termSignal) {
+	((Worker*)process->data)->OnExit(exitStatus, termSignal);
+}
+
 Worker::Worker(IWorker::Observer* obs, const WorkerSettings& workerSettings) {
 	MS_lOGF();
 	m_settings = workerSettings;
@@ -51,6 +57,7 @@ Worker::Worker(IWorker::Observer* obs, const WorkerSettings& workerSettings) {
 
 Worker::~Worker() {
 	MS_lOGF();
+	Close();
 	UnregisterObserver();
 }
 
@@ -121,13 +128,13 @@ bool Worker::Init() {
 	m_childStdOut->Init();
 	m_childStdErr.reset(new UVPipeWrapper(this, 1024, UVPipeWrapper::Role::CONSUMER));
 	m_childStdErr->Init();
-	
-	//uv_pipe_init(Mediasoup::GetInstance().GetLoop(), &m_producer, 0);
-	//uv_pipe_init(Mediasoup::GetInstance().GetLoop(), &m_consumer, 0);	
+
+	m_channel.reset(new Channel(this));
+	m_channel->Init();
 
 	// options
 	options.flags = UV_PROCESS_DETACHED;
-	options.exit_cb = nullptr;
+	options.exit_cb = StaticExitCB;
 
 	// fd 0 (stdin)   : Just ignore it.
 	// fd 1 (stdout)  : Pipe it for 3rd libraries that log their own stuff.
@@ -141,20 +148,30 @@ bool Worker::Init() {
 	childStdio[1].data.stream = (uv_stream_t*)m_childStdOut->GetPipe();
 	childStdio[2].flags = (uv_stdio_flags)(UV_CREATE_PIPE | UV_WRITABLE_PIPE);
 	childStdio[2].data.stream = (uv_stream_t*)m_childStdErr->GetPipe();
-	//childStdio[3].flags = (uv_stdio_flags)(UV_CREATE_PIPE | UV_READABLE_PIPE);
-	//childStdio[3].data.stream = (uv_stream_t*)&m_producer;
-	//childStdio[4].flags = (uv_stdio_flags)(UV_CREATE_PIPE | UV_WRITABLE_PIPE);
-	//childStdio[4].data.stream = (uv_stream_t*)&m_consumer;
+	childStdio[3].flags = (uv_stdio_flags)(UV_CREATE_PIPE | UV_READABLE_PIPE);
+	childStdio[3].data.stream = (uv_stream_t*)m_channel->GetProducer()->GetPipe();
+	childStdio[4].flags = (uv_stdio_flags)(UV_CREATE_PIPE | UV_WRITABLE_PIPE);
+	childStdio[4].data.stream = (uv_stream_t*)m_channel->GetConsumer()->GetPipe();
 	options.stdio = childStdio;
-	options.stdio_count = 3;
+	options.stdio_count = 5;
 	
-	int ret = uv_spawn(Mediasoup::GetInstance().GetLoop(), &m_child, &options);
-	MS_ASSERT_RV_LOGE(0 == ret, false, "uv_spawn failed:{}", uv_strerror(ret));
+	m_child = new uv_process_t;
+	m_child->data = (void*)this;
+
+	int ret = uv_spawn(Mediasoup::GetInstance().GetLoop(), m_child, &options);
+	if (0 != ret) {
+		Close();
+		MS_lOGE("uv_spawn failed:{}", uv_strerror(ret));
+		NotifyObserver(std::bind(&IWorker::Observer::OnFailure, std::placeholders::_1, uv_strerror(ret)));
+		return false;
+	}
 
 	m_childStdOut->Start();
 	m_childStdErr->Start();
+	m_channel->Start();
 	
-	m_pid = m_child.pid;
+	m_channel->SetPid(m_child->pid);
+	m_pid = m_child->pid;
 
 	return true;
 }
@@ -172,6 +189,10 @@ void Worker::OnRead(UVPipeWrapper* pipe, uint8_t* data, size_t len) {
 
 void Worker::OnClose(UVPipeWrapper* pipe) {
 
+}
+
+void Worker::OnMsg(std::string targetId, std::string event, std::string data)
+{
 }
 
 void Worker::getWorkBinPath() {
@@ -201,6 +222,43 @@ void Worker::getWorkBinPath() {
 	strexePath = strexePath.substr(0, strexePath.rfind('/') + 1);
 
 	s_workerBin += strexePath + "mediasoup-worker";
+}
+
+void Worker::Close() {
+	MS_lOGF();
+	MS_ASSERT_R_LOGI(m_child, "m_child is nullptr");
+
+	// Kill the worker process.
+	m_child->close_cb = nullptr;
+	m_child->exit_cb = nullptr;
+	uv_close((uv_handle_t*)m_child, nullptr);
+	delete m_child;
+	m_child = nullptr;
+
+	if (m_channel) {
+		m_channel.reset(nullptr);
+	}
+
+	// clear router
+
+	// emit close
+	NotifyObserver(std::bind(&IWorker::Observer::OnClose, std::placeholders::_1));
+}
+
+void Worker::OnExit(int64_t exitStatus, int termSignal) {
+	if (!m_spawnDone && exitStatus == 42) {
+		m_spawnDone = true;
+		MS_lOGE("worker process failed due to wrong settings [pid:{}]", m_pid);
+		NotifyObserver(std::bind(&IWorker::Observer::OnFailure, std::placeholders::_1, "wrong settings"));
+		return;
+	}
+
+	MS_lOGE("worker process died unexpectedly [pid:{}, code:{}, signal:{}]", m_pid, exitStatus, termSignal);
+
+	std::string error = "${ this._pid }, code : ${ code }, signal : ${ signal }]";
+	std::stringstream in(error);
+	in << "[pid:" << m_pid << ", code:" << exitStatus << ", signal:" << termSignal << "]";
+	NotifyObserver(std::bind(&IWorker::Observer::OnFailure, std::placeholders::_1, error));
 }
 
 }

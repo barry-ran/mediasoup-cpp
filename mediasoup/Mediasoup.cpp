@@ -113,11 +113,7 @@ void Mediasoup::Destroy()  {
     uv_async_send(&m_async);
 
     MS_lOGI("wait work thread quit");
-    uv_thread_join(&m_workThread);    
-
-	uv_loop_close(m_loop);
-	delete m_loop;
-	m_loop = nullptr;
+    uv_thread_join(&m_workThread); 
 
 	// clear works
 	for (const auto& it : m_works) {
@@ -126,6 +122,10 @@ void Mediasoup::Destroy()  {
 		}
 		delete it;
 	}
+
+	uv_loop_close(m_loop);
+	delete m_loop;
+	m_loop = nullptr;
 
     MS_lOGI("work thread quit");
 }

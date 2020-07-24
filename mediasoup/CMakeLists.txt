@@ -17,6 +17,7 @@ set(mediasoup_headers
   Worker.hpp
   RtpParameters.hpp
   SupportedRtpCapabilities.hpp
+  Channel.hpp
 )
 
 set(mediasoup_sources
@@ -26,6 +27,7 @@ set(mediasoup_sources
   Mediasoup.cpp  
   Worker.cpp
   SupportedRtpCapabilities.cpp
+  Channel.cpp
 )
 
 add_library(mediasoup

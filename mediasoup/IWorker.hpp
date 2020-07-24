@@ -161,6 +161,8 @@ public:
 	class Observer {
 	public:
 		virtual void OnSuccess() = 0;
+		virtual void OnFailure(std::string error) = 0;
+		virtual void OnClose() = 0;
 	};
 };
 

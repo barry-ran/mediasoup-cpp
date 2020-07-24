@@ -172,7 +172,8 @@ void UVPipeWrapper::Close() {
 	}
 
 	// If there is no error and the peer didn't close its pipe side then close gracefully.
-	if (!m_hasError && !m_isClosedByPeer) {
+	// todo: pipe need shutdown?
+	if (0 && !m_hasError && !m_isClosedByPeer) {
 		// Use uv_shutdown() so pending data to be written will be sent to the peer before closing.
 		auto req = new uv_shutdown_t;
 		req->data = static_cast<void*>(this);
