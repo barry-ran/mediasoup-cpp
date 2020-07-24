@@ -143,6 +143,13 @@ void Channel::processMessage(const nlohmann::json& jsonMessage) {
 }
 
 void Channel::OnClose(UVPipeWrapper * pipe) {
+	if (pipe == m_consumerPipe.get()) {
+		MS_lOGI("Consumer Channel OnClose");
+	}
+
+	if (pipe == m_producerPipe.get()) {
+		MS_lOGI("Consumer Channel OnClose");
+	}
 }
 
 }
