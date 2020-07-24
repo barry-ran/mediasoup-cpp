@@ -6,10 +6,11 @@
 namespace mediasoup
 {
 
+class UVPipeWrapper;
 class UVPipeObserver {
 public:
-	virtual void OnRead(uint8_t* data, size_t len) = 0;
-	virtual void OnClose() = 0;
+	virtual void OnRead(UVPipeWrapper* pipe, uint8_t* data, size_t len) = 0;
+	virtual void OnClose(UVPipeWrapper* uvHandle) = 0;
 };
 
 class UVPipeWrapper : public CommonObserver<UVPipeObserver> {

@@ -159,12 +159,18 @@ bool Worker::Init() {
 	return true;
 }
 
-void Worker::OnRead(uint8_t* data, size_t len) {
+void Worker::OnRead(UVPipeWrapper* pipe, uint8_t* data, size_t len) {
 	std::string s((char*)data, len);
-	MS_lOGD("Worker::OnRead: {}", s);
+	if (pipe == m_childStdOut.get()) {
+		MS_lOGD("Worker::OnRead: {}", s);
+	}
+
+	if (pipe == m_childStdErr.get()) {
+		MS_lOGE("Worker::OnRead: {}", s);
+	}
 }
 
-void Worker::OnClose() {
+void Worker::OnClose(UVPipeWrapper* pipe) {
 
 }
 

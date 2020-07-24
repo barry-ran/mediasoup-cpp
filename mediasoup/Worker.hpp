@@ -16,8 +16,8 @@ public:
 	bool Init();
 
 	// UVPipeObserver
-	void OnRead(uint8_t* data, size_t len) override;
-	void OnClose() override;
+	void OnRead(UVPipeWrapper* pipe, uint8_t* data, size_t len) override;
+	void OnClose(UVPipeWrapper* pipe) override;
 
 protected:
 	void getWorkBinPath();

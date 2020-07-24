@@ -216,7 +216,7 @@ void UVPipeWrapper::OnReadCB(uv_stream_t* stream, ssize_t nRead, const uv_buf_t*
 		m_bufferDataLen += static_cast<size_t>(nRead);
 
 		// Notify the Observer.
-		NotifyObserver(std::bind(&UVPipeObserver::OnRead, std::placeholders::_1, m_buffer, m_bufferDataLen));		
+		NotifyObserver(std::bind(&UVPipeObserver::OnRead, std::placeholders::_1, this, m_buffer, m_bufferDataLen));		
 		m_bufferDataLen = 0;
 	} else if (nRead == UV_EOF || nRead == UV_ECONNRESET) {
 		// Peer disconnected.	
@@ -226,7 +226,7 @@ void UVPipeWrapper::OnReadCB(uv_stream_t* stream, ssize_t nRead, const uv_buf_t*
 		Close();
 
 		// Notify the Observer.
-		NotifyObserver(std::bind(&UVPipeObserver::OnClose, std::placeholders::_1));
+		NotifyObserver(std::bind(&UVPipeObserver::OnClose, std::placeholders::_1, this));
 	} else {
 		// Some error.
 		MS_lOGE("read error, closing the pipe: {}", uv_strerror(nRead));
@@ -237,7 +237,7 @@ void UVPipeWrapper::OnReadCB(uv_stream_t* stream, ssize_t nRead, const uv_buf_t*
 		Close();
 
 		// Notify the Observer.
-		NotifyObserver(std::bind(&UVPipeObserver::OnClose, std::placeholders::_1));
+		NotifyObserver(std::bind(&UVPipeObserver::OnClose, std::placeholders::_1, this));
 	}
 }
 
@@ -253,7 +253,7 @@ void UVPipeWrapper::OnWriteError(int error) {
 	Close();
 
 	// Notify the Observer.
-	NotifyObserver(std::bind(&UVPipeObserver::OnClose, std::placeholders::_1));
+	NotifyObserver(std::bind(&UVPipeObserver::OnClose, std::placeholders::_1, this));
 }
 
 }
